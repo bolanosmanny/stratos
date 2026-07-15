@@ -57,6 +57,17 @@ export default function Home() {
     }
   };
 
+  const removeFromWatchlist = async (id: string) => {
+    const { error } = await supabase.from("watchlists").delete().eq("id", id);
+
+    if (error) { 
+      setStatus("Error removing: " + error.message);
+    } else {
+      fetchWatchlist();
+    }
+  };
+
+
   return (
     <main style={{ padding: "2rem" }}> 
       <h1>Stratos</h1>
@@ -76,7 +87,10 @@ export default function Home() {
     <h2> Your Watchlist</h2>
     <ul>
       {watchlist.map((item) => (
-        <li key={item.id}>{item.ticker}</li>
+        <li key={item.id}>
+          {item.ticker}{" "}
+          <button onClick={() => removeFromWatchlist(item.id)}>  - Remove</button>
+          </li>
       ))}
     </ul>
     </main>
