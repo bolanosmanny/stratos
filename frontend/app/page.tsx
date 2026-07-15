@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <main style={{ padding: "2rem" }}> 
-      <h1>FinSight</h1>
+      <h1>Stratos</h1>
       <p>Backend says: {message}</p>
     </main>
   );
