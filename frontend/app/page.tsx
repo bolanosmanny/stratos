@@ -3,17 +3,37 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+type WatchlistItem = { 
+  id: string;
+  ticker: string;
+  created_at: string;
+};
+
 export default function Home() { 
   const [message, setMessage] = useState("Loading...");
   const [ticker, setTicker] = useState("");
   const [status, setStatus] = useState("");
+  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:8000/")
       .then((res) => res.json())
       .then((data) => setMessage(data.message))
       .catch((err) => setMessage("Error: " + err.message));
+
+    fetchWatchlist();
   }, []);
+
+  const fetchWatchlist = async () => {
+    const { data, error } = await supabase 
+      .from("watchlists")
+      .select("id, ticker, created_at")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) { 
+      setWatchlist(data);
+    }
+  };
 
   const addToWatchList = async () => { 
     const { data: userData } = await supabase.auth.getUser();
@@ -33,6 +53,7 @@ export default function Home() {
     } else {
       setStatus(`Added ${ticker.toUpperCase()} to your watchlists.`);
       setTicker("");
+      fetchWatchlist();
     }
   };
 
@@ -51,6 +72,13 @@ export default function Home() {
     />
     <button onClick={addToWatchList} style={{ padding: "0.5rem 1rem" }}>Add</button>
     <p>{status}</p>
+
+    <h2> Your Watchlist</h2>
+    <ul>
+      {watchlist.map((item) => (
+        <li key={item.id}>{item.ticker}</li>
+      ))}
+    </ul>
     </main>
   );
 }
