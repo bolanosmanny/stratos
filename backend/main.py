@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os 
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -10,7 +15,16 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+FMP_API_KEY = os.getenv("FMP_API_KEY")
+
 @app.get("/")
 def read_root():
     return {"message": "App is running"}
+
+@app.get("/stock/{ticker}")
+def get_stock(ticker: str):
+    url = f"https://financialmodelingprep.com/stable/quote?symbol={ticker}&apikey={FMP_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    return data
 
