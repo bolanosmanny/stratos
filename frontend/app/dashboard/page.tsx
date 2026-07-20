@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 type StockData = {
     symbol: string;
@@ -38,6 +39,29 @@ export default function Dashboard() {
     const [stock, setStock] = useState<StockData | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [addStatus, setAddStatus] = useState("");
+
+    const addtoWatchList = async () => { 
+        if (!stock) return;
+
+        const { data: userData } = await supabase.auth.getUser();
+
+        if (!userData.user) {
+            setAddStatus("Log in to add stocks to your watchlist.");
+            return;
+        }
+
+        const { error } = await supabase.from("watchlists").insert({
+            ticker: stock.symbol,
+            user_id: userData.user.id,
+        });
+
+        if (error) {
+            setAddStatus("Erorr: " + error.message);
+        } else {
+            setAddStatus(`${stock.symbol} added to your watchlist.`);
+        }
+    };
 
     const searchStock = async () => {
         if (!ticker.trim()) return;
@@ -160,6 +184,19 @@ export default function Dashboard() {
                                 {formatPrice(stock.price)}
                             </p>
                         </div>
+
+                        <button
+                            onClick = {addtoWatchList}
+                            className = "mb-6 px-4 py-2 text-sm rounded-sm transition-opacity hover:opacity-90"
+                            style = {{ backgroundColor: "#1E2A3D", color: "#EDEBE3" }}
+                        >
+                            + Add to Watchlist
+                        </button>
+                        {addStatus && ( 
+                            <p className = "text-xs mb-4" style={{ color: "#8A93A6" }}>
+                                {addStatus}
+                            </p>
+                        )}
 
                         {rows.map(([label, value], i) => (
                             <div
