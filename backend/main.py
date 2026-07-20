@@ -25,6 +25,14 @@ def read_root():
 def get_stock(ticker: str):
     url = f"https://financialmodelingprep.com/stable/quote?symbol={ticker}&apikey={FMP_API_KEY}"
     response = requests.get(url)
-    data = response.json()
+
+    print(f"Status code: {response.status_code}")
+    print(f"Raw response: {response.text[:500]}")
+
+    try:
+        data = response.json()
+    except ValueError:
+        return {"Error": "Data provider returned an invalid response."}
+
     return data
 
