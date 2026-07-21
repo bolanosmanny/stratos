@@ -18,6 +18,18 @@ type StockData = {
     exchange: string;
 };
 
+type HistoryPoint = { 
+    date: string;
+    close: number;
+    high: number;
+    low: number;
+    volume: number;
+};
+
+type HistoryPeriod = "1M" | "6M" | "1Y" | "5Y";
+
+const HISTORY_PERIODS: HistoryPeriod[] = ["1M", "6M", "1Y", "5Y"];
+
 const TICKER_TAPE = [
   "AAPL", "MSFT", "NVDA", "TSLA", "GOOGL", "AMZN", "META", "JPM",
   "V", "WMT", "UNH", "XOM", "DIS", "NFLX", "INTC", "AMD","COST"
@@ -40,6 +52,10 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [addStatus, setAddStatus] = useState("");
+    const [period, setPeriod] = useState<HistoryPeriod>("1Y");
+    const [history, setHistory] = useState<HistoryPoint[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [historyError, setHistoryError] = useState("");
 
     const addtoWatchList = async () => { 
         if (!stock) return;
@@ -63,6 +79,33 @@ export default function Dashboard() {
         }
     };
 
+    const loadHistory = async (symbol: string, selectedPeriod: HistoryPeriod) => {
+        setHistoryLoading(true);
+        setHistoryError("");
+
+        try { 
+            const res = await fetch(
+                `http://localhost:8000/stock/${symbol}/history?period=${selectedPeriod}`
+            );
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.detail || "Unable to load historical data.");
+            }
+
+            setHistory(data.history);
+        }   catch (error) {
+            setHistory([]);
+            setHistoryError(
+                error instanceof Error
+                ? error.message
+                : "Unable to load historical data."
+            );
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
     const searchStock = async () => {
         if (!ticker.trim()) return;
         setLoading(true);
@@ -77,6 +120,7 @@ export default function Dashboard() {
                 setError(`No record found for "${ticker.toUpperCase()}"`);
             } else {
                 setStock(data[0]);
+                loadHistory(data[0].symbol, period);
             }
         } catch {
             setError("Could not reach the data service. Please try again later.");
@@ -98,7 +142,20 @@ export default function Dashboard() {
             ["Exchange", stock.exchange],
         ]
         : [];
-    
+
+    const performance = 
+        history.length > 0
+        ? {
+            startClose: history[0].close,
+            endClose: history[history.length - 1].close,
+            high: Math.max(...history.map((point) => point.high)),
+            low: Math.min(...history.map((point) => point.low)),
+            returnPercent:
+                ((history[history.length - 1].close - history[0].close) / history[0].close) *
+                100,
+        }
+        : null;
+
     return (
         <main
             className = "min-h-screen"
@@ -218,6 +275,92 @@ export default function Dashboard() {
                                 </span>
                             </div>
                         ))}
+
+                        <div
+                            className = "mt-10 pt-6"
+                            style = {{ borderTop: "1px solid #1E2A3D" }}
+                        >
+                            <div className = "flex items-center justify-between mb-5">
+                                <h3 className = "text-base font-semibold">
+                                    Historical Performance
+                                </h3>
+
+                                <div className = "flex gap-1">
+                                    {HISTORY_PERIODS.map((option) => (
+                                        <button
+                                            key = {option}
+                                            onClick = {() => {
+                                                setPeriod(option);
+                                                loadHistory(stock.symbol, option);
+                                            }}
+                                            className = "px-2.5 py-1 text-xs rounded-sm"
+                                            style= {{
+                                                backgroundColor: period === option ? "#C9963C" : "#1E2A3D",
+                                                color: period === option ? "#0B1220" : "#EDEBE3",
+                                            }}
+                                        >
+                                            {option}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {historyLoading && (
+                                <p className = "text-sm" style = {{ color: "#8A93A6" }}>
+                                    Loading historical data...
+                                </p>
+                            )}
+
+                            {historyError && (
+                                <p className = "text-sm" style = {{ color: "#B5675A" }}>
+                                    {historyError}
+                                </p>
+                            )}
+
+                            {performance && !historyLoading && (
+                                <div className = "grid grid-cols-3 gap-3">
+                                    <div>
+                                        <p className = "text-xs mb-1" style = {{ color: "#8A93A6" }}>
+                                            {period} Return
+                                        </p>
+                                        <p
+                                            className = "text-sm"
+                                            style= {{
+                                                color: performance.returnPercent >= 0 ? "#7FA37A" : "#B5675A",
+                                                fontFamily: "'IBM Plex Mono', monospace",
+                                            }}
+                                        >
+                                            {performance.returnPercent >= 0 ? "+" : ""}
+                                            {performance.returnPercent.toFixed(2)}%
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className = "text-xs mb-1" style={{ color: "#8A93A6" }}>
+                                            Period High
+                                        </p>
+                                        <p
+                                            className = "text-sm"
+                                            style = {{ fontFamily: "'IBM Plex Mono', monospace" }}
+                                        >
+                                            {formatPrice(performance.high)}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className = "text-xs mb-1" style = {{ color: "#8A93A6" }}>
+                                            Period Low
+                                        </p>
+                                        <p
+                                            className = "text-sm"
+                                            style = {{ fontFamily: "'IBM Plex Mono', monospace" }}
+                                        >
+                                            {formatPrice(performance.low)}
+                                        </p>
+                                    </div>
+                                    </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
