@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
 type StockData = {
     symbol: string;
@@ -249,6 +250,15 @@ export default function Dashboard() {
                         >
                             + Add to Watchlist
                         </button>
+
+                        <Link
+                            href = {`/stocks/${stock.symbol}`}
+                            className = "inline-block mb-6 ml-2 px-4 py-2 text-sm rounded-sm transition-opacity hover:opacity-90"
+                            style = {{ backgroundColor: "#C9963C", color: "#0B1220" }}
+                        >
+                            View Detailed Research
+                        </Link>
+
                         {addStatus && ( 
                             <p className = "text-xs mb-4" style={{ color: "#8A93A6" }}>
                                 {addStatus}
