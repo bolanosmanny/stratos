@@ -148,3 +148,84 @@ def get_company_profile(ticker: str):
         "exchange": profile.get("exchange"),
     }
 
+@app.get("/stock/{ticker}/fundamentals")
+def get_company_fundamentals(ticker: str):
+    if not FMP_API_KEY:
+        raise HTTPException(status_code=500, detail="FMP_API_KEY is not configured.")
+    
+    symbol = ticker.strip().upper()
+
+    try:
+        quote_response = requests.get(
+            "https://financialmodelingprep.com/stable/quote",
+            params={"symbol": symbol, "apikey": FMP_API_KEY},
+            timeout=15,  
+        )
+        income_response = requests.get(
+            "https://financialmodelingprep.com/stable/income-statement",
+            params={"symbol": symbol, "apikey": FMP_API_KEY},
+            timeout=15,
+        )
+
+        quote_response.raise_for_status()
+        income_response.raise_for_status()
+
+        quote_data = quote_response.json()
+        income_data = income_response.json()
+
+    except requests.RequestException:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Unable to retrieve fundamental data.",
+        )
+    
+    if not isinstance(quote_data, list) or len(quote_data) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No fundamental data found for {symbol}.",
+        )
+    
+    if not isinstance(income_data, list) or len(income_data) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No income statement data found for {symbol}.",
+        )
+    
+    quote = quote_data[0]
+    latest = income_data[0]
+    previous = income_data[1] if len(income_data) > 1 else None
+
+    revenue = latest.get("revenue")
+    net_income = latest.get("netIncome")
+
+    eps = latest.get("eps")
+    pe_ratio = quote.get("pe")
+
+    if pe_ratio is None and eps not in (None, 0):
+        pe_ratio = quote.get("price") / eps
+
+    revenue_growth = None
+    if previous and previous.get("revenue") not in (None, 0):
+        revenue_growth = (
+            (revenue - previous.get("revenue")) / previous["revenue"]
+        ) * 100
+
+    net_margin = None
+    if revenue not in (None, 0) and net_income is not None:
+        net_margin = (net_income / revenue) * 100
+
+    return { 
+        "symbol": symbol,
+        "fiscalDate": latest.get("date"),
+        "peRatio": pe_ratio,
+        "eps": eps,
+        "dividendPerShare": quote.get("lastDiv"),
+        "revenue": revenue,
+        "revenueGrowth": revenue_growth,
+        "netIncome": net_income,
+        "netMargin": net_margin,
+        "grossProfit": latest.get("grossProfit"),
+        "operatingIncome": latest.get("operatingIncome"),
+        "ebitda": latest.get("ebitda"),
+    }
+    
