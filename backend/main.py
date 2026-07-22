@@ -101,3 +101,50 @@ def get_stock_history(
         "history": history,
     }
 
+@app.get("/stock/{ticker}/profile")
+def get_company_profile(ticker: str):
+    if not FMP_API_KEY:
+        raise HTTPException(status_code = 500, detail="FMP_API_KEY is not configured.")
+    
+    symbol = ticker.strip().upper()
+
+    try:
+        response = requests.get(
+            "https://financialmodelingprep.com/stable/profile",
+            params = {
+                "symbol": symbol,
+                "apikey": FMP_API_KEY,
+            },
+            timeout=15,
+        )
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retreive company profile data.",
+        )
+
+    if not isinstance(data, list) or len(data) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No company profile data found for {symbol}.",
+        )
+    
+    profile = data[0]
+
+    return { 
+        "symbol": profile.get("symbol"),
+        "companyName": profile.get("companyName"),
+        "sector": profile.get("sector"),
+        "industry": profile.get("industry"),
+        "ceo": profile.get("ceo"),
+        "website": profile.get("website"),
+        "description": profile.get("description"),
+        "country": profile.get("country"),
+        "employees": profile.get("fullTimeEmployees"),
+        "ipoDate": profile.get("ipoDate"),
+        "image": profile.get("image"),
+        "exchange": profile.get("exchange"),
+    }
+
