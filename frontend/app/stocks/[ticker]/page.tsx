@@ -51,6 +51,21 @@ type CompanyProfile = {
   exchange: string | null;
 };
 
+type Fundamentals = {
+  symbol: string;
+  fiscalDate: string | null;
+  peRatio: number | null;
+  eps: number | null;
+  dividendPerShare: number | null;
+  revenue: number | null;
+  revenueGrowth: number | null;
+  netIncome: number | null;
+  netMargin: number | null;
+  grossProfit: number | null;
+  operatingIncome: number | null;
+  ebitda: number | null;
+}
+
 type HistoryPeriod = "1M" | "6M" | "1Y" | "5Y";
 
 const HISTORY_PERIODS: HistoryPeriod[] = ["1M", "6M", "1Y", "5Y"];
@@ -72,6 +87,7 @@ export default function StockPage() {
   const [stock, setStock] = useState<StockData | null>(null);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [profile, setProfile] = useState<CompanyProfile | null>(null);
+  const [fundamentals, setFundamentals] = useState<Fundamentals | null>(null);
   const [period, setPeriod] = useState<HistoryPeriod>("1Y");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -81,6 +97,7 @@ export default function StockPage() {
       setLoading(true);
       setError("");
       setProfile(null);
+      setFundamentals(null);
 
       try {
         const quoteResponse = await fetch(
@@ -116,6 +133,17 @@ export default function StockPage() {
           const profileData: CompanyProfile = await profileResponse.json();
           setProfile(profileData);
         }
+
+        const fundamentalsResponse = await fetch(
+          `http://localhost:8000/stock/${ticker}/fundamentals`
+        );
+
+        if (fundamentalsResponse.ok) { 
+            const fundamentalsData: Fundamentals = 
+              await fundamentalsResponse.json();
+            setFundamentals(fundamentalsData);
+        }
+
       } catch (error) {
         setError(
           error instanceof Error
@@ -180,7 +208,7 @@ export default function StockPage() {
         </Link>
       </nav>
 
-      <section className="max-w-5xl mx-auto px-6 py-14">
+      <section className="max-w-6xl mx-auto px-6 py-14">
         {loading && (
           <p style={{ color: "#8A93A6" }}>
             Loading {ticker} data...
@@ -236,6 +264,11 @@ export default function StockPage() {
                 </p>
               </div>
             </div>
+
+            <div className = "grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
+              <div>
+
+              
 
             <div
               className="grid grid-cols-2 md:grid-cols-4"
@@ -488,6 +521,94 @@ export default function StockPage() {
                 )}
               </section>
             )}
+            
+            </div>
+
+            <aside
+              className = "h-fit p-5"
+              style = {{ 
+                backgroundColor: "#0E1726",
+                border: "1px solid #1E2A3D",
+              }}
+            >
+              <p
+                className = "text-xs uppercase mb-4"
+                style = {{
+                  letterSpacing: "0.15em",
+                  color: "#8A93A6",
+                  fontFamily: "'IBM Plex Mono', monospace",
+                }}
+              >
+                Fundamentals
+              </p>
+
+              {fundamentals ? (
+                <div>
+                  {[
+                    [
+                      "P/E Ratio",
+                      fundamentals.peRatio !== null
+                      ? fundamentals.peRatio.toFixed(1)
+                      : "-",
+                    ],
+                    [
+                      "EPS",
+                      fundamentals.eps !== null
+                      ? formatPrice(fundamentals.eps)
+                      : "-",
+                    ],
+                    [
+                      "Revenue",
+                      fundamentals.revenue !== null
+                      ? formatMarketCap(fundamentals.revenue)
+                      : "-",
+                    ],
+                    [
+                      "Revenue Growth",
+                      fundamentals.revenueGrowth !== null
+                      ? `${fundamentals.revenueGrowth.toFixed(1)}%`
+                      :"-",
+                    ],
+                    [
+                      "Net Income",
+                      fundamentals.netIncome !== null
+                      ? formatMarketCap(fundamentals.netIncome)
+                      :"-",
+                    ],
+                    [
+                      "Net Margin",
+                      fundamentals.netMargin !== null 
+                      ? `${fundamentals.netMargin.toFixed(1)}%`
+                      : "-",
+                    ],
+                  ].map(([label, value], index) => (
+                    <div
+                      key = {label}
+                      className = "flex items-center justify-between py-3"
+                      style = {{
+                        borderBottom: 
+                          index < 5 ? "1px solid #1E2A3D" : "none",
+                      }}
+                    >
+                      <span className = "text-sm" style = {{ color: "#8A93A6" }}>
+                        {label}
+                      </span>
+                      <span
+                        className = "text-sm"
+                        style = {{ fontFamily: "'IBM Plex Mono', monospace" }}
+                      >
+                        {value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className = "text-sm" style = {{ color: "#8A93A6" }}>
+                  Fundamentals unavailable for this stock.
+                </p>
+              )}
+            </aside>
+            </div>
           </>
         )}
       </section>
