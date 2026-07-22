@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import {
+    CartesianGrid,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
 
 type StockData = {
     symbol: string;
@@ -300,6 +309,61 @@ export default function StockPage() {
                                         {formatPrice(performance.low)}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div className = "mt-8 h-72">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart
+                                        data={history}
+                                        margin = {{ top: 10, right: 10, left: -10, bottom: 0 }}
+                                    >
+                                        <CartesianGrid stroke = "#1E2A3D" strokeDasharray = "3 3" />
+
+                                        <XAxis
+                                            dataKey = "date"
+                                            tick = {{ fill: "#8A93A6", fontSize: 11 }}
+                                            tickLine = {false}
+                                            axisLine = {false}
+                                            minTickGap = {10}
+                                            tickFormatter = {(value) =>
+                                                new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    year: "2-digit",
+                                                })
+                                            }
+                                        />
+
+                                        <YAxis
+                                            dataKey = "close"
+                                            tick = {{ fill: "#8A93A6", fontSize: 11 }}
+                                            tickLine = {false}
+                                            axisLine = {false}
+                                            width = {52}
+                                            tickFormatter = {(value) => `$${value}`}
+                                            domain={["dataMin", "dataMax"]}
+                                        />
+
+                                        <Tooltip
+                                            contentStyle = {{
+                                                backgroundColor: "#0E1726",
+                                                border: "1px soild #1E2A3D",
+                                                borderRadius: "2px",
+                                                color: "#EDEBE3",
+                                            }}
+                                            labelStyle = {{ color: "#8A93A6" }}
+                                        />
+
+                                        <Line
+                                            type = "monotone"
+                                            dataKey = "close"
+                                            name= "Close"
+                                            stroke = "#C9963C"
+                                            strokeWidth = {2}
+                                            dot={false}
+                                            activeDot= {{ r: 4, fill: "#C9963C" }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
                             </div>
                         </section>
                     )}
