@@ -109,23 +109,35 @@ export default function Dashboard() {
 
     const searchStock = async () => {
         if (!ticker.trim()) return;
+
         setLoading(true);
         setError("");
         setStock(null);
 
         try { 
-            const res = await fetch(`http://localhost:8000/stock/${ticker.trim().toUpperCase()}`);
+            const res = await fetch(
+                `http://localhost:8000/stock/${ticker.trim().toUpperCase()}`
+            );
             const data = await res.json();
 
-            if (data.Error || !Array.isArray(data) || data.length == 0) {
-                setError(`No record found for "${ticker.toUpperCase()}"`);
-            } else {
-                setStock(data[0]);
-                loadHistory(data[0].symbol, period);
+            if (!res.ok) {
+                throw new Error(data.detail || "Unable to load stock data.");
             }
-        } catch {
-            setError("Could not reach the data service. Please try again later.");
-        } finally { 
+
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error(`No record found for "%{ticker.toUpperCase()}`);
+                return;
+            }
+
+            setStock(data[0]);
+            loadHistory(data[0].symbol, period);
+        } catch (error) {
+            setError(
+                error instanceof Error
+                ? error.message
+                : "Could not reach the data service. Please try again later."
+            );
+        } finally {
             setLoading(false);
         }
     };

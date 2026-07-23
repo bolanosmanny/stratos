@@ -11,14 +11,9 @@ type WatchlistItem = {
 };
 
 export default function Home() { 
-  const [message, setMessage] = useState("Loading...");
   const [ticker, setTicker] = useState("");
   const [status, setStatus] = useState("");
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
-
-  useEffect(() => {
-    fetchWatchlist();
-  }, []);
 
   const fetchWatchlist = async () => {
     const { data, error } = await supabase 
@@ -30,6 +25,18 @@ export default function Home() {
       setWatchlist(data);
     }
   };
+
+  useEffect(() => {
+    supabase
+      .from("watchlists")
+      .select("id, ticker, created_at")
+      .order("created_at", { ascending: false })
+      .then(({data, error }) => {
+        if (!error && data) {
+          setWatchlist(data);
+        }
+      })
+  }, []);
 
   const addToWatchList = async () => { 
     if (!ticker.trim()) return;

@@ -20,24 +20,49 @@ app.add_middleware(
 
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
+def check_fmp_response(response: requests.Response) -> None:
+    if response.status_code == 429:
+        raise HTTPException(
+            status_code=429,
+            detail="Market-data API limit reached. Please try again later.",
+        )
+
+    response.raise_for_status()
+
 @app.get("/")
 def read_root():
     return {"message": "App is running"}
 
 @app.get("/stock/{ticker}")
 def get_stock(ticker: str):
-    url = f"https://financialmodelingprep.com/stable/quote?symbol={ticker}&apikey={FMP_API_KEY}"
-    response = requests.get(url)
+    if not FMP_API_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="FMP_API_KEY is not configured.",
+        )
 
-    print(f"Status code: {response.status_code}")
-    print(f"Raw response: {response.text[:500]}")
+    symbol = ticker.strip().upper()
 
     try:
-        data = response.json()
-    except ValueError:
-        return {"Error": "Data provider returned an invalid response."}
+        response = requests.get(
+            "https://financialmodelingprep.com/stable/quote",
+            params={
+                "symbol": symbol,
+                "apikey": FMP_API_KEY,
+            },
+            timeout=15,
+        )
 
-    return data
+        check_fmp_response(response)
+        return response.json()
+
+    except HTTPException:
+        raise
+    except (requests.RequestException, ValueError):
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve stock quote data.",
+        )
 
 PERIOD_DAYS = {
     "1M": 30,
@@ -68,7 +93,7 @@ def get_stock_history(
             },
             timeout=15,
         )
-        response.raise_for_status()
+        check_fmp_response(response)
         data = response.json()
     except requests.RequestException:
         raise HTTPException(
@@ -117,7 +142,7 @@ def get_company_profile(ticker: str):
             },
             timeout=15,
         )
-        response.raise_for_status()
+        check_fmp_response(response)
         data = response.json()
     except requests.RequestException:
         raise HTTPException(
@@ -167,8 +192,8 @@ def get_company_fundamentals(ticker: str):
             timeout=15,
         )
 
-        quote_response.raise_for_status()
-        income_response.raise_for_status()
+        check_fmp_response(quote_response)
+        check_fmp_response(income_response)
 
         quote_data = quote_response.json()
         income_data = income_response.json()
@@ -227,5 +252,90 @@ def get_company_fundamentals(ticker: str):
         "grossProfit": latest.get("grossProfit"),
         "operatingIncome": latest.get("operatingIncome"),
         "ebitda": latest.get("ebitda"),
+    }
+
+@app.get("/stock/{ticker}/financial-health")
+def get_financial_health(ticker: str):
+    if not FMP_API_KEY:
+        raise HTTPException(status_code=500, detail="FMP_API_KEY is not configured.")
+    
+    symbol = ticker.strip().upper()
+
+    try:
+        balance_response = requests.get(
+            "https://financialmodelingprep.com/stable/balance-sheet-statement",
+            params={"symbol": symbol, "apikey": FMP_API_KEY},
+            timeout=15,
+        )
+
+        cashflow_response = requests.get(
+            "https://financialmodelingprep.com/stable/cash-flow-statement",
+            params={"symbol": symbol, "apikey": FMP_API_KEY},
+            timeout=15,
+        )
+
+        check_fmp_response(balance_response)
+        check_fmp_response(cashflow_response)
+
+        balance_data = balance_response.json()
+        cashflow_data = cashflow_response.json()
+
+    except requests.RequestException:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to retrieve financial health data.",
+        )
+    
+    if not isinstance(balance_data, list) or len(balance_data) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No balance sheet data found for {symbol}.",
+        )
+    
+    if not isinstance(cashflow_data, list) or len(cashflow_data) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No cash flow data found for {symbol}.",
+        )
+    
+    balance = balance_data[0]
+    cashflow = cashflow_data[0]
+
+    current_assets = balance.get("totalCurrentAssets")
+    current_liabilities = balance.get("totalCurrentLiabilities")
+    total_debt = balance.get("totalDebt")
+    equity = balance.get("totalStockholdersEquity")
+    operating_cash_flow = cashflow.get("operatingCashFlow")
+    capital_expenditures = cashflow.get("capitalExpenditure")
+
+    current_ratio = None
+    if current_assets not in (None, 0) and current_liabilities not in (None, 0):
+        current_ratio = current_assets / current_liabilities
+
+    debt_to_equity = None
+    if total_debt is not None and equity not in (None, 0):
+        debt_to_equity = total_debt / equity
+
+    free_cash_flow = cashflow.get("freeCashFlow")
+    if(
+        free_cash_flow is None
+        and operating_cash_flow is not None
+        and capital_expenditures is not None
+    ):
+        free_cash_flow = operating_cash_flow + capital_expenditures
+
+    return {
+        "symbol": symbol,
+        "fiscalDate": balance.get("date"),
+        "cashAndCashEquivalents": balance.get("cashAndCashEquivalents"),
+        "totalDebt": total_debt,
+        "totalAssets": balance.get("totalAssets"),
+        "totalLiabilities": balance.get("totalLiabilities"),
+        "shareholdersEquity": equity,
+        "currentRatio": current_ratio,
+        "debtToEquity": debt_to_equity,
+        "operatingCashFlow": operating_cash_flow,
+        "capitalExpenditures": capital_expenditures,
+        "freeCashFlow": free_cash_flow,
     }
     
