@@ -27,13 +27,49 @@ export default function ResearchPage() {
     const [ticker, setTicker] = useState("AAPL");
     const [question, setQuestion] = useState("");
     const [submittedQuestion, setSubmittedQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
+    const [researchLoading, setResearchLoading] = useState(false);
+    const [researchError, setResearchError] = useState("");
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!ticker.trim() || !question.trim()) return;
 
-        setSubmittedQuestion(question.trim());
+        setResearchLoading(true);
+        setResearchError("");
+        setAnswer("");
+        setSubmittedQuestion("");
+
+        try { 
+            const response = await fetch("http://localhost:8000/research", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json",
+                },
+                body: JSON.stringify({
+                    ticker: ticker.trim(),
+                    question: question.trim(),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Sparky could not process that request.");  
+            }
+
+            setSubmittedQuestion(data.question);
+            setAnswer(data.answer);
+        } catch (error) {
+            setResearchError(
+                error instanceof Error
+                ? error.message
+                : "Unable to reach Sparky right now."
+            );
+        } finally {
+            setResearchLoading(false);
+        }
     };
 
     return ( 
@@ -87,6 +123,7 @@ export default function ResearchPage() {
                             alt="Sparky the research cat"
                             width={72}
                             height={72}
+                            loading = "eager"
                             className = "object-contain"
                             style = {{ imageRendering: "pixelated" }}
                         />
@@ -188,15 +225,24 @@ export default function ResearchPage() {
 
                     <button
                         type = "submit"
-                        className = "mt-5 px-5 py-3 text-sm font:medium transition-opacity hover:opacity-90"
+                        disabled = {researchLoading}
+                        className = "mt-5 px-5 py-3 text-sm font:medium transition-opacity hover:opacity-90 disabled:opacity-60"
                         style = {{ 
                             backgroundColor: "#C9963C",
                             color: "#0B1120",
                         }}
                     >
-                        Researh {ticker || "Company"} →
+                        {researchLoading
+                            ? "Sparky is researching..."
+                            : `Research ${ticker || "Company"}→`}
                     </button>    
                 </form>
+
+                {researchError && (
+                    <p className = "mt-4 text-sm" style = {{ color: "#B5675A" }}>
+                        {researchError}
+                    </p>
+                )}
 
                 <div className = "mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
                     <section>
@@ -300,9 +346,11 @@ export default function ResearchPage() {
 
                         <p className = "mt-3 text-lg">{submittedQuestion}</p>
 
-                        <p className = "mt-5 text-sm" style = {{ color: "#B8BFCC" }}>
-                            Sparky is looking into your question and will retrive filing excerpts and return a 
-                            source-cited answer here.
+                        <p 
+                            className = "mt-5 text-sm leading-6"
+                            style = {{ color: "#B8BFCC"}}
+                        >
+                            {answer}
                         </p>
                     </section>
                 )}

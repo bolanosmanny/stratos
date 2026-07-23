@@ -7,7 +7,31 @@ from dotenv import load_dotenv
 from datetime import date, timedelta
 from fastapi import HTTPException, Query
 
+from pydantic import BaseModel
+
+from supabase import Client, create_client
+from services.research_index import index_latest_10k_risk_factors
+from services.retrieval import retrieve_relevant_chunks
+
 load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
+
+if not SUPABASE_URL or not SUPABASE_SECRET_KEY:
+    raise RuntimeError("Missing SUPABASE_URL or SUPABASE__SECRET_KEY in backend/.env file")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
+
+SEC_USER_AGENT = os.getenv("SEC_USER_AGENT")
+
+if not SEC_USER_AGENT:
+    raise RuntimeError("Missing SEC_USER_AGENT in backend/.env file")
+
+SEC_HEADERS = {
+    "User-Agent": SEC_USER_AGENT,
+    "Accept-Encoding": "gzip, deflate",
+}
 
 app = FastAPI()
 
@@ -338,4 +362,94 @@ def get_financial_health(ticker: str):
         "capitalExpenditures": capital_expenditures,
         "freeCashFlow": free_cash_flow,
     }
-    
+
+class ResearchRequest(BaseModel):
+    ticker: str
+    question: str
+
+@app.post("/research")
+def research_company(request: ResearchRequest):
+    symbol = request.ticker.strip().upper()
+    question = request.question.strip()
+
+    if not symbol:
+        raise HTTPException(
+            status_code = 400,
+            detail = "A ticker symbol is required",
+        )
+
+    if not question:
+        raise HTTPException(
+            status_code = 400,
+            detail = "A research question is required",
+        )
+
+    return { 
+        "ticker": symbol,
+        "question": question,
+        "answer": (
+            f"Sparky received your question about {symbol}."
+            " SEC filing retrieval and source-cited analysis will be connected next."
+        ),
+        "citations":[],
+    }
+
+@app.get("/research/status")
+def research_status():
+    try:
+        response = (
+            supabase.table("document_chunks")
+            .select("id", count="exact")
+            .limit(1)
+            .execute()
+        )
+
+        return { 
+            "status": "connected",
+            "indexed_chunks": response.count or 0,
+        }
+    except Exception as error:
+        raise HTTPException(
+            status_code = 503,
+            detail = f"Supabase connection failed: {error}",
+        )
+
+@app.post("/research/ingest/{ticker}")
+def ingest_latest_10k(ticker: str):
+    return index_latest_10k_risk_factors(
+        ticker,
+        SEC_HEADERS,
+        supabase,
+)
+
+@app.post("/research/retrieve")
+def retrieve_research_chunks(request: ResearchRequest):
+    ticker = request.ticker.strip().upper()
+    question = request.question.strip()
+
+    if not ticker or not question:
+        raise HTTPException(
+            status_code = 400,
+            detail = "A ticker and research question are required",
+        )
+
+    matches = retrieve_relevant_chunks(
+        ticker,
+        question,
+        supabase, 
+    )
+
+    return { 
+        "ticker": ticker,
+        "question": question,
+        "matches": [
+            {
+                "filing_type": match["filing_type"],
+                "filing_date": match["filing_date"],
+                "source_url": match["source_url"],
+                "similarity": round(match["similarity"], 3),
+                "excerpt": match["content"][:450] + "...",
+            }
+            for match in matches
+        ],
+    }
