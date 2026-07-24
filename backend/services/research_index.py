@@ -21,6 +21,13 @@ def index_latest_10k_sections(
 
         for section_data in sections:
             section = section_data["section"]
+            (
+                supabase.table("document_chunks")
+                .delete()
+                .eq("accession_number", filing["accession_number"])
+                .eq("section", section)
+                .execute()
+            )
             chunks = section_data["chunks"]
             embeddings = create_embeddings(chunks)
 

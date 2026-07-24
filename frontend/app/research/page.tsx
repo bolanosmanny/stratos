@@ -413,7 +413,7 @@ export default function ResearchPage() {
 
                                             <p
                                                 className = "mt-3 text-xs leading-5"
-                                                style = {{ color: "B8BFCC" }}
+                                                style = {{ color: "#B8BFCC" }}
                                             >
                                                 {citation.excerpt}
                                             </p>
@@ -422,7 +422,7 @@ export default function ResearchPage() {
                                                 href = {citation.source_url}
                                                 target = "_blank"
                                                 rel = "noreferrer"
-                                                className = "mt-3 inline-block text-xs hover:opacity -80"
+                                                className = "mt-3 inline-block text-xs hover:opacity-80"
                                                 style = {{ color: "#C9963C" }}
                                             >
                                                 Open SEC filing · filed {citation.filing_date} ↗
