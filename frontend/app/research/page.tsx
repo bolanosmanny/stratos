@@ -9,7 +9,25 @@ type Citation = {
     filing_type: string;
     filing_date: string;
     source_url: string;
+    section: string;
+    excerpt: string;
 };
+
+function formatAnswer(text: string) {
+    return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+        const isBold = part.startsWith("**") && part.endsWith("**");
+
+        if (isBold) {
+            return (
+                <strong key = {index}>
+                    {part.slice(2, -2)}
+                </strong>
+            );
+        }
+
+        return part;
+    });
+}
 
 const SUGGESTED_QUESTIONS = [
     {
@@ -360,7 +378,7 @@ export default function ResearchPage() {
                             className = "mt-5 whitespace-pre-line text-sm leading-6"
                             style = {{ color: "#B8BFCC"}}
                         >
-                            {answer}
+                            {formatAnswer(answer)}
                         </p>
 
                         {citations.length > 0 && (
@@ -381,17 +399,35 @@ export default function ResearchPage() {
 
                                 <div className = "mt-3 space-y-2">
                                     {citations.map((citation) => (
-                                        <a
+                                        <details
                                             key = {citation.label}
-                                            href = {citation.source_url}
-                                            target = "_blank"
-                                            rel = "noreferrer"
-                                            className = "block text-sm hover:opacity-80"
-                                            style = {{ color: "#C9963C"}}
+                                            className = "py-3"
+                                            style = {{ borderBottom: "1px solid #1E2A3D" }}
                                         >
-                                            [{citation.label}] {citation.filing_type} · filed{" "}
-                                            {citation.filing_date} ↗
-                                        </a>
+                                            <summary
+                                                className = "cursor-pointer text-sm"
+                                                style = {{ color: "#C9963C" }}
+                                            >
+                                                [{citation.label}] {citation.filing_type} · {citation.section}
+                                            </summary>
+
+                                            <p
+                                                className = "mt-3 text-xs leading-5"
+                                                style = {{ color: "B8BFCC" }}
+                                            >
+                                                {citation.excerpt}
+                                            </p>
+
+                                            <a
+                                                href = {citation.source_url}
+                                                target = "_blank"
+                                                rel = "noreferrer"
+                                                className = "mt-3 inline-block text-xs hover:opacity -80"
+                                                style = {{ color: "#C9963C" }}
+                                            >
+                                                Open SEC filing · filed {citation.filing_date} ↗
+                                            </a>
+                                        </details>
                                     ))}
                                 </div>
                             </div>

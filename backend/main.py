@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from supabase import Client, create_client
 
-from services.research_index import index_latest_10k_risk_factors
+from services.research_index import index_latest_10k_sections
 from services.retrieval import retrieve_relevant_chunks
 
 from services.research_answer import answer_research_question
@@ -434,7 +434,7 @@ def research_status():
 
 @app.post("/research/ingest/{ticker}")
 def ingest_latest_10k(ticker: str):
-    return index_latest_10k_risk_factors(
+    return index_latest_10k_sections(
         ticker,
         SEC_HEADERS,
         supabase,

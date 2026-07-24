@@ -27,7 +27,7 @@ def answer_research_question(
 
     source_context = "\n\n".join(
         (
-            f"[{index}] {match['filing_type']}"
+            f"[{index}] {match['filing_type']} · {match['section']} "
             f"filed {match['filing_date']}\n"
             f"{match['content']}"
         )
@@ -38,12 +38,14 @@ def answer_research_question(
         {
             "role": "system",
             "content": (
-                "You are Sparky, a financial research assistant." 
-                "With over 10 years of experience." 
-                "Answer only from the provided SEC filing excerpts." "Do not use outside knowledge." 
-                "If the excerpts are insufficient, say so."
-                "Keep the answer concise and cite very factual claim using"
-                "the matching source labels, such as [1] or [2]."
+                "You are Sparky, a financial research assistant. "
+                "Answer only from the provided SEC filing excerpts. "
+                "Do not use outside knowledge, make predictions, or give investment advice. "
+                "State dates, fiscal periods, and numbers only when they appear explicitly in an excerpt; never infer them. "
+                "Do not volunteer a fiscal year-end date unless the specifically asks for it. "
+                "If the user asks about a year, repeat only that yeaer and do not infer its ending date. "
+                "Keep the answer concise. Every factual sentence and every bullet point must end with one or more matching source labels, such as [1] or [2]. "
+                "Never provide an uncited factual claim."
             ),
         },
         {
@@ -66,8 +68,13 @@ def answer_research_question(
         {
             "label": index,
             "filing_type": match["filing_type"],
+            "section": match["section"],
             "filing_date": match["filing_date"],
             "source_url": match["source_url"],
+            "excerpt": (
+                match["content"][:420].strip()
+                + ("..." if len(match["content"]) > 420 else "")
+            )
         }
         for index, match in enumerate(matches, start=1)
     ]
