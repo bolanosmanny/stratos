@@ -4,6 +4,13 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+type Citation = { 
+    label: number;
+    filing_type: string;
+    filing_date: string;
+    source_url: string;
+};
+
 const SUGGESTED_QUESTIONS = [
     {
         ticker: "AAPL",
@@ -28,6 +35,7 @@ export default function ResearchPage() {
     const [question, setQuestion] = useState("");
     const [submittedQuestion, setSubmittedQuestion] = useState("");
     const [answer, setAnswer] = useState("");
+    const [citations, setCitations] = useState<Citation[]>([]);
     const [researchLoading, setResearchLoading] = useState(false);
     const [researchError, setResearchError] = useState("");
 
@@ -39,6 +47,7 @@ export default function ResearchPage() {
         setResearchLoading(true);
         setResearchError("");
         setAnswer("");
+        setCitations([]);
         setSubmittedQuestion("");
 
         try { 
@@ -61,6 +70,7 @@ export default function ResearchPage() {
 
             setSubmittedQuestion(data.question);
             setAnswer(data.answer);
+            setCitations(data.citations ?? []);
         } catch (error) {
             setResearchError(
                 error instanceof Error
@@ -347,11 +357,45 @@ export default function ResearchPage() {
                         <p className = "mt-3 text-lg">{submittedQuestion}</p>
 
                         <p 
-                            className = "mt-5 text-sm leading-6"
+                            className = "mt-5 whitespace-pre-line text-sm leading-6"
                             style = {{ color: "#B8BFCC"}}
                         >
                             {answer}
                         </p>
+
+                        {citations.length > 0 && (
+                            <div
+                                className = "mt-6 pt-5"
+                                style = {{ borderTop: "1px solid #1E2A3D" }}
+                            >
+                                <p
+                                    className = "text-xs uppercase"
+                                    style = {{ 
+                                        letterSpacing: "0.15em",
+                                        color: "#8A93A6",
+                                        fontFamily: "'IBM Plex Mono', monospace",
+                                    }}
+                                >
+                                    SEC Sources
+                                </p>
+
+                                <div className = "mt-3 space-y-2">
+                                    {citations.map((citation) => (
+                                        <a
+                                            key = {citation.label}
+                                            href = {citation.source_url}
+                                            target = "_blank"
+                                            rel = "noreferrer"
+                                            className = "block text-sm hover:opacity-80"
+                                            style = {{ color: "#C9963C"}}
+                                        >
+                                            [{citation.label}] {citation.filing_type} · filed{" "}
+                                            {citation.filing_date} ↗
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </section>
                 )}
             </section>

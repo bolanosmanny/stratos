@@ -10,8 +10,11 @@ from fastapi import HTTPException, Query
 from pydantic import BaseModel
 
 from supabase import Client, create_client
+
 from services.research_index import index_latest_10k_risk_factors
 from services.retrieval import retrieve_relevant_chunks
+
+from services.research_answer import answer_research_question
 
 load_dotenv()
 
@@ -32,6 +35,16 @@ SEC_HEADERS = {
     "User-Agent": SEC_USER_AGENT,
     "Accept-Encoding": "gzip, deflate",
 }
+
+OLLAMA_BASE_URL = os.getenv(
+    "OLLAMA_BASE_URL",
+    "http://localhost:11434",
+)
+
+OLLAMA_MODEL = os.getenv(
+    "OLLAMA_MODEL",
+    "qwen2.5:7b",
+)
 
 app = FastAPI()
 
@@ -369,10 +382,10 @@ class ResearchRequest(BaseModel):
 
 @app.post("/research")
 def research_company(request: ResearchRequest):
-    symbol = request.ticker.strip().upper()
+    ticker = request.ticker.strip().upper()
     question = request.question.strip()
 
-    if not symbol:
+    if not ticker:
         raise HTTPException(
             status_code = 400,
             detail = "A ticker symbol is required",
@@ -384,14 +397,19 @@ def research_company(request: ResearchRequest):
             detail = "A research question is required",
         )
 
+    result = answer_research_question(
+        ticker,
+        question,
+        supabase,
+        OLLAMA_BASE_URL,
+        OLLAMA_MODEL,
+    )
+
     return { 
-        "ticker": symbol,
+        "ticker": ticker,
         "question": question,
-        "answer": (
-            f"Sparky received your question about {symbol}."
-            " SEC filing retrieval and source-cited analysis will be connected next."
-        ),
-        "citations":[],
+        "answer": result["answer"],
+        "citations": result["citations"],
     }
 
 @app.get("/research/status")

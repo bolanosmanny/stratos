@@ -23,4 +23,3 @@ def retrieve_relevant_chunks(
     )
 
     return response.data or []
-
