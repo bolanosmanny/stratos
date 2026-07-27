@@ -16,6 +16,8 @@ from services.retrieval import retrieve_relevant_chunks
 
 from services.research_answer import answer_research_question
 
+import time
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -56,6 +58,8 @@ app.add_middleware(
 )
 
 FMP_API_KEY = os.getenv("FMP_API_KEY")
+QUOTE_CACHE: dict[str, tuple[float, dict]] = {}
+QUOTE_CACHE_TTL_SECONDS = 60
 
 def check_fmp_response(response: requests.Response) -> None:
     if response.status_code == 429:
@@ -100,6 +104,74 @@ def get_stock(ticker: str):
             status_code=502,
             detail="Unable to retrieve stock quote data.",
         )
+
+@app.get("/stocks/quotes")
+def get_stock_quotes(
+    symbols: str = Query(min_length=1),
+):
+    if not FMP_API_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="FMP_API_KEY is not configured.",
+        )
+
+    ticker_list = list(
+        dict.fromkeys(
+            symbol.strip().upper()
+            for symbol in symbols.split(",")
+            if symbol.strip()
+        )
+    )
+
+    if not ticker_list:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide at least one ticker symbol.",
+        )
+
+    if len(ticker_list) > 50:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum of 50 ticker symbols allowed.",
+        )
+
+    quotes = []
+    now = time.time()
+
+    for symbol in ticker_list:
+        cached_quote = QUOTE_CACHE.get(symbol)
+
+        if cached_quote and now - cached_quote[0] < QUOTE_CACHE_TTL_SECONDS:
+            quotes.append(cached_quote[1])
+            continue
+
+        try: 
+            response = requests.get(
+                "https://financialmodelingprep.com/stable/quote",
+                params={
+                    "symbol": symbol,
+                    "apikey": FMP_API_KEY,
+                },
+                timeout=15,
+            )
+
+            check_fmp_response(response)
+            quote_data = response.json()
+
+            if isinstance(quote_data, list) and quote_data:
+                quote = quote_data[0]
+                QUOTE_CACHE[symbol] = (now, quote)
+                quotes.append(quote)
+
+        except HTTPException:
+            raise
+        except (requests.RequestException, ValueError):
+            raise HTTPException(
+                status_code=502,
+                detail="Unable to retrieve stock quote.",
+            )
+
+    return quotes
 
 PERIOD_DAYS = {
     "1M": 30,
