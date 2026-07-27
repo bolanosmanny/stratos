@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { 
+    Area,
+    AreaChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts"
+
 import { supabase } from "@/lib/supabaseClient";
 
 type Holding = {
@@ -16,6 +25,18 @@ type Quote = {
     symbol: string;
     price: number;
 }
+
+type HistoryPoint = { 
+    date: string;
+    close: number;
+}
+
+type PortfolioHistoryPoint = {
+    date: string;
+    value: number;
+}
+
+type HistoryPeriod = "1M" | "6M" | "1Y" | "5Y";
 
 function formatCurrency(value: number): string {
     return new Intl.NumberFormat("en-US", {
@@ -34,6 +55,9 @@ export default function PortfolioPage() {
     const [adding, setAdding] = useState(false);
     const [holdings, setHoldings] = useState<Holding[]>([]);
     const [prices, setPrices] = useState<Record<string, number>>({});
+    const [historyPeriod, setHistoryPeriod] = useState<HistoryPeriod>("1Y");
+    const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryPoint[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
 
     const loadPrices = async (holdingRows: Holding[]) => { 
         const symbols = [
@@ -65,6 +89,93 @@ export default function PortfolioPage() {
         }
     };
 
+    const loadPortfolioHistory = async ( 
+        holdingRows: Holding[],
+        selectedPeriod: HistoryPeriod
+    ) => { 
+        if (holdingRows.length === 0) {
+            setPortfolioHistory([]);
+            return;
+        }
+
+        setHistoryLoading(true);
+
+        try { 
+            const symbols = [
+                ...new Set(holdingRows.map((holding) => holding.ticker)),          
+            ];
+
+            const historyResponses = await Promise.all(
+                symbols.map(async (symbol) => { 
+                    const response = await fetch(
+                        `http://localhost:8000/stock/${symbol}/history?period=${selectedPeriod}`
+                    );
+
+                    const data: { history: HistoryPoint[] } = 
+                        await response.json();
+
+                    if (!response.ok) { 
+                        throw new Error("Unable to load portfolio history.");
+                    }
+
+                    return { 
+                        symbol,
+                        history: data.history,
+                    };
+                })
+            );
+
+            const dates = [
+                ...new Set(
+                    historyResponses.flatMap((result) =>
+                        result.history.map((point) => point.date)
+                    )
+                ),
+            ].sort();
+
+            const lastCloseByTicker: Record<string, number> = {};
+
+            const points = dates
+                .map((date) => { 
+                    for (const result of historyResponses) {
+                        const point = result.history.find(
+                            (historyPoint) => historyPoint.date === date
+                        );
+
+                        if (point) { 
+                            lastCloseByTicker[result.symbol] = point.close;
+                        }
+                    }
+
+                    const value = holdingRows.reduce((total, holding) => {
+                        if(holding.purchase_date > date) {
+                            return total;
+                        }
+
+                        const close = lastCloseByTicker[holding.ticker];
+
+                        return close === undefined
+                            ? total
+                            : total + Number(holding.shares) * close;
+                    }, 0);
+
+                    return { date, value };
+                })
+                .filter((point) => point.value > 0);
+
+            setPortfolioHistory(points);
+        } catch { 
+            setPortfolioHistory([]);
+        } finally { 
+            setHistoryLoading(false);
+        }
+    }
+
+    const changeHistoryPeriod = async (period: HistoryPeriod) => {
+        setHistoryPeriod(period);
+        await loadPortfolioHistory(holdings, period);
+    }
+
     const loadHoldings = async () =>  {
         const { data, error } = await supabase
             .from("portfolio_holdings")
@@ -74,6 +185,7 @@ export default function PortfolioPage() {
         if (!error && data) {
             setHoldings(data);
             await loadPrices(data);
+            await loadPortfolioHistory(data, historyPeriod);
         }
     };
 
@@ -86,6 +198,7 @@ export default function PortfolioPage() {
                 if (!error && data) {
                     setHoldings(data);
                     void loadPrices(data);
+                    void loadPortfolioHistory(data, "1Y");
                 }
             });
     }, []);
@@ -195,6 +308,7 @@ export default function PortfolioPage() {
             percentage: totalValue > 0 ? (value / totalValue) * 100 : 0,
         }))
         .sort((first, second) => second.value - first.value);
+
 
     return (
         <main
@@ -378,10 +492,11 @@ export default function PortfolioPage() {
                                 className = "mt-2 text-xl"
                                 style = {{ 
                                     color:
-                                        label === "Profit / Loss" && totalProfitLoss < 0
-                                            ? "#7FA37A"
-                                            : "#EDEBE3",
-                                    fontFamily: "'IBM Plex Mono', monospace",
+                                        label === "Profit / Loss" 
+                                            ? totalProfitLoss >= 0
+                                                ? "#7FA37A"
+                                                : "#B5675A"
+                                            :"#EDEBE3",
                                 }}
                             >
                                 {value}
@@ -392,7 +507,7 @@ export default function PortfolioPage() {
 
                 {hasCurrentPrices && allocationData.length > 0 && (
                     <section 
-                        className = "mit-12 p-6"
+                        className = "mt-12 p-6"
                         style = {{ 
                             border: "1px solid #1E2A3D",
                             backgroundColor: "#0E1726",
@@ -450,6 +565,115 @@ export default function PortfolioPage() {
                         </div>
                     </section>
                 )}
+
+                            <section
+                className="mt-12 p-6"
+                style={{
+                    border: "1px solid #1E2A3D",
+                    backgroundColor: "#0E1726",
+                }}
+            >
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p
+                            className="text-xs uppercase"
+                            style={{
+                                color: "#8A93A6",
+                                letterSpacing: "0.08em",
+                                fontFamily: "'IBM Plex Mono', monospace",
+                            }}
+                        >
+                            Historical Performance
+                        </p>
+                        <h2 className="mt-2 text-xl font-semibold">
+                            Portfolio Value
+                        </h2>
+                    </div>
+
+                    <div className="flex gap-2">
+                        {(["1M", "6M", "1Y", "5Y"] as HistoryPeriod[]).map(
+                            (period) => (
+                                <button
+                                    key={period}
+                                    onClick={() => changeHistoryPeriod(period)}
+                                    className="px-2.5 py-1 text-xs rounded-sm"
+                                    style={{
+                                        backgroundColor:
+                                            historyPeriod === period
+                                                ? "#C9963C"
+                                                : "#1E2A3D",
+                                        color:
+                                            historyPeriod === period
+                                                ? "#0B1120"
+                                                : "#EDEBE3",
+                                        fontFamily: "'IBM Plex Mono', monospace",
+                                    }}
+                                >
+                                    {period}
+                                </button>
+                            )
+                        )}
+                    </div>
+                </div>
+
+                <div className="mt-6 h-72">
+                    {historyLoading ? (
+                        <p className="text-sm" style={{ color: "#8A93A6" }}>
+                            Loading portfolio history...
+                        </p>
+                    ) : portfolioHistory.length < 2 ? (
+                        <p className="text-sm" style={{ color: "#8A93A6" }}>
+                            Not enough historical data for this period.
+                        </p>
+                    ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={portfolioHistory}>
+                                <XAxis
+                                    dataKey="date"
+                                    tickFormatter={(value) => value.slice(5)}
+                                    tick={{
+                                        fill: "#8A93A6",
+                                        fontSize: 11,
+                                    }}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
+                                <YAxis
+                                    tickFormatter={(value) =>
+                                        `$${Math.round(value).toLocaleString()}`
+                                    }
+                                    tick={{
+                                        fill: "#8A93A6",
+                                        fontSize: 11,
+                                    }}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    width={72}
+                                />
+                                <Tooltip
+                                    formatter={(value) => [
+                                        formatCurrency(Number(value)),
+                                        "Portfolio Value",
+                                    ]}
+                                    contentStyle={{
+                                        backgroundColor: "#0B1120",
+                                        border: "1px solid #1E2A3D",
+                                        color: "#EDEBE3",
+                                    }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#C9963C"
+                                    strokeWidth={2}
+                                    fill="#C9963C"
+                                    fillOpacity={0.18}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    )}
+                </div>
+            </section>
 
                 <div className = "mt-12">
                     <div
@@ -558,3 +782,4 @@ export default function PortfolioPage() {
         </main>
     )
 }
+
