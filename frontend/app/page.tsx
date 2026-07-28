@@ -17,6 +17,13 @@ type WatchlistCollection = {
   watchlist_items: WatchlistItem[];
 };
 
+type Quote = { 
+  symbol: string;
+  price: number;
+  change: number;
+  changePercentage: number;
+}
+
 export default function Home() { 
   const [collections, setCollections] = useState<WatchlistCollection[]>([]);
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null);
@@ -25,6 +32,7 @@ export default function Home() {
   const [status, setStatus] = useState("");
   const [creatingList, setCreatingList] = useState(false);
   const [addingTicker, setAddingTicker] = useState(false);
+  const [quotes, setQuotes] = useState<Record<string, Quote>>({});
 
   const selectedCollection = 
     collections.find(
@@ -105,6 +113,39 @@ export default function Home() {
               });
         });
   }, []);
+
+  useEffect(() => { 
+    const symbols = 
+    selectedCollection?.watchlist_items.map((item) => item.ticker) ?? [];
+
+    if (symbols.length ===0 ) { 
+      return;
+    }
+
+    fetch(
+      `http://localhost:8000/stocks/quotes?symbols=${symbols?.join(",")}`
+    )
+      .then(async (response) => { 
+        const data: Quote[] = await response.json();
+
+        if (!response.ok) { 
+          throw new Error("Unable to load watchlist quotes.");
+        }
+
+        return data;
+      })
+      .then((data) => { 
+        setQuotes(
+          Object.fromEntries(
+            data.map((quote) => [quote.symbol, quote])
+        )
+      );
+      })
+      .catch(() => { 
+        setQuotes({});
+      });
+  }, [selectedCollection]);
+
 
   const createWatchlist = async () => { 
     const trimmedName = newWatchlistName.trim();
@@ -215,6 +256,24 @@ export default function Home() {
   await loadCollections();
   };
 
+  const loadedQuotes = selectedCollection
+    ? selectedCollection.watchlist_items
+      .map((item) => quotes[item.ticker])
+      .filter((quote): quote is Quote => quote !== undefined)
+    : [];
+
+    const averageDailyChange = 
+      loadedQuotes.length > 0
+        ? loadedQuotes.reduce(
+            (total, quote) => total + quote.changePercentage,
+            0
+          ) / loadedQuotes.length
+        : 0;
+
+    const positiveTickers = loadedQuotes.filter(
+        (quote) => quote.changePercentage >= 0
+    ).length;
+        
   return ( 
     <main
       className = "min-h-screen"
@@ -430,6 +489,57 @@ export default function Home() {
                   </button>
                 </div>
 
+                <div className = "grid gap-px mt-8 md:grid-cols-3"
+                  style = {{ backgroundColor: "#1E2A3D" }}>
+                    {[
+                      [
+                        "Tracked",
+                        `${selectedCollection.watchlist_items.length} ${
+                          selectedCollection.watchlist_items.length === 1 ? "stock" : "stocks" 
+                        }`,
+                      ],
+                      [
+                        "Advancers Today",
+                        `${positiveTickers} / ${loadedQuotes.length || "-"}`,
+                        "#7FA37A",
+                      ],
+                      [
+                        "Equal-Weight Daily Move",
+                        loadedQuotes.length > 0
+                          ? `${averageDailyChange >= 0 ? "+" : ""}${averageDailyChange.toFixed(2)}%`
+                          : "Loading...",
+                        averageDailyChange >= 0 ? "#7FA37A" : "#B5675A"
+                      ],
+                    ].map(([label, value, color]) => (
+                      <div
+                        key = {label}
+                        className = "p-4"
+                        style = {{ backgroundColor: "#0B1120" }}
+                      >
+                        <p
+                          className = "text-xs uppercase"
+                          style = {{
+                            color: "#8A93A6",
+                            letterSpacing: "0.08em",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          {label}
+                        </p>
+
+                        <p
+                          className = "mt-2 text-lg"
+                          style = {{ 
+                            color, 
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
                 <div className = "flex gap-2 mt-8">
                   <input
                     type = "text"
@@ -482,8 +592,8 @@ export default function Home() {
 
                 <div className = "mt-8">
                   <div
-                    className = "grid grid-cols-3 gap-4 px-4 py-3 text-xs uppercase"
-                    style = {{
+                    className = "grid grid-cols-5 gap-4 px-4 py-3 text-xs uppercase"
+                    style = {{ 
                       borderTop: "1px solid #1E2A3D",
                       borderBottom: "1px solid #1E2A3D",
                       color: "#8A93A6",
@@ -492,6 +602,8 @@ export default function Home() {
                     }}
                   >
                     <span>Ticker</span>
+                    <span>Current Price</span>
+                    <span>Daily Change</span>
                     <span>Date Added</span>
                     <span>Action</span>
                   </div>
@@ -504,31 +616,46 @@ export default function Home() {
                       No stocks in this watchlist yet.
                     </p>
                   ) : (
-                    selectedCollection.watchlist_items.map(
-                      (item) => (
+                    selectedCollection.watchlist_items.map((item) => { 
+                      const quote = quotes[item.ticker];
+                      const isPositive = (quote?.changePercentage ?? 0) >= 0;
+
+                      return (
                         <div
                           key = {item.id}
-                          className = "grid grid-cols-3 gap-4 px-4 py-4 text-sm"
-                          style = {{
+                          className = "grid grid-cols-5 gap-4 px-4 py-3 text-sm"
+                          style = {{ 
                             borderBottom: "1px solid #1E2A3D",
                             fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
                           <Link
                             href = {`/stocks/${item.ticker}`}
-                            style = {{
-                              color: "#EDEBE3",
-                            }}
+                            style = {{ color: "#EDEBE3" }}
                           >
                             {item.ticker}
                           </Link>
 
+                          <span style = {{ color: "#B8BFCC" }}>
+                            {quote ? `$${quote.price.toFixed(2)}` : "Loading..."}
+                          </span>
+
                           <span
-                            style = {{
-                              color: "#B8BFCC",
+                            style = {{ 
+                              color: quote
+                                ? isPositive
+                                  ? "#7FA37A"
+                                  : "#B5675A"
+                                : "#8A93A6",
                             }}
                           >
-                            {item.created_at.slice(0,10)}
+                            {quote
+                              ? `${isPositive ? "+" : ""}${quote.changePercentage.toFixed(2)}%`
+                              : "-"}
+                          </span>
+
+                          <span style = {{ color: "#B8BFCC" }}>
+                            {item.created_at.slice(0, 10)}
                           </span>
 
                           <button
@@ -540,8 +667,8 @@ export default function Home() {
                             Remove
                           </button>
                         </div>
-                      )
-                    )
+                      );
+                    })
                   )}
                 </div>
               </>
