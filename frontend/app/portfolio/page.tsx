@@ -309,7 +309,6 @@ export default function PortfolioPage() {
         }))
         .sort((first, second) => second.value - first.value);
 
-
     return (
         <main
             className = "min-h-screen"
@@ -350,7 +349,7 @@ export default function PortfolioPage() {
                 </Link>
             </nav>
 
-            <section className = "max-w-5xl mx-auto px-6 py-14">
+            <section className = "max-w-7xl mx-auto px-6 py-14">
                 <p
                     className = "text-xs uppercase mb-2"
                     style = {{
