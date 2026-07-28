@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
@@ -26,6 +26,11 @@ type HistoryPoint = {
     low: number;
     volume: number;
 };
+
+type WatchlistOption = {
+    id: number;
+    name: string;
+}
 
 type HistoryPeriod = "1M" | "6M" | "1Y" | "5Y";
 
@@ -57,28 +62,57 @@ export default function Dashboard() {
     const [history, setHistory] = useState<HistoryPoint[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
     const [historyError, setHistoryError] = useState("");
+    const [watchlists, setWatchlists] = useState<WatchlistOption[]>([]);
+    const [selectedWatchlistId, setSelectedWatchlistId] = useState<number | null>(null);
+    const selectedWatchlist = watchlists.find((watchlist)=> watchlist.id === selectedWatchlistId);
+
+
+    useEffect(() => { 
+        supabase
+            .from("watchlist_collections")
+            .select("id, name")
+            .order("created_at", { ascending: true })
+            .then(({ data, error }) => { 
+                if (!error && data) { 
+                    setWatchlists(data);
+
+                    if (data.length > 0) {
+                        setSelectedWatchlistId(data[0].id);
+                    }
+                }  
+            });
+    }, []);
 
     const addtoWatchList = async () => { 
-        if (!stock) return;
+        if (!stock || !selectedWatchlistId) { 
+            setAddStatus("Create or select a watchlist first.");
+            return;
+        }
 
         const { data: userData } = await supabase.auth.getUser();
 
-        if (!userData.user) {
+        if (!userData.user) { 
             setAddStatus("Log in to add stocks to your watchlist.");
             return;
         }
 
-        const { error } = await supabase.from("watchlists").insert({
+        const { error } = await supabase.from("watchlist_items").insert({
+            watchlist_id: selectedWatchlistId,
             ticker: stock.symbol,
-            user_id: userData.user.id,
-        });
+    });
 
-        if (error) {
-            setAddStatus("Erorr: " + error.message);
-        } else {
-            setAddStatus(`${stock.symbol} added to your watchlist.`);
-        }
-    };
+    if (error) { 
+        setAddStatus(
+            error.code === "23505"
+            ? `${stock.symbol} is already in this watchlist.`
+            : `Error: ${error.message}`
+        );  
+    } else { 
+        setAddStatus(
+            `${stock.symbol} added to ${selectedWatchlist?.name}.`
+        );
+    }
+};
 
     const loadHistory = async (symbol: string, selectedPeriod: HistoryPeriod) => {
         setHistoryLoading(true);
@@ -255,13 +289,39 @@ export default function Dashboard() {
                             </p>
                         </div>
 
-                        <button
-                            onClick = {addtoWatchList}
-                            className = "mb-6 px-4 py-2 text-sm rounded-sm transition-opacity hover:opacity-90"
-                            style = {{ backgroundColor: "#1E2A3D", color: "#EDEBE3" }}
-                        >
-                            + Add to Watchlist
-                        </button>
+                        <div className = "inline-flex items-center gap-2 mb-6">
+                            <select
+                                value = {selectedWatchlistId ?? ""}
+                                onChange = {(event) => setSelectedWatchlistId(Number(event.target.value))}
+                                className = "px-3 py-2 text-sm rounded-sm focus:outline-none"
+                                style = {{ 
+                                    backgroundColor: "#0E1726",
+                                    border: "1px solid #1E2A3D",
+                                    color: "#EDEBE3",
+                                    fontFamily: "'IBM Plex Mono', monospace",
+                                }}
+                            >
+                                {watchlists.length === 0 ? (
+                                    <option value = "">Create a Watchlist first</option>
+                                ) : (
+                                    watchlists.map((watchlist) => (
+                                        <option key = {watchlist.id} value = {watchlist.id}>
+                                            {watchlist.name}
+                                        </option>
+                                    ))
+                                )}
+                            </select>
+
+                            <button
+                                type = "button"
+                                disabled = {!selectedWatchlistId}
+                                onClick = {addtoWatchList}
+                                className = "px-4 py-2 text-sm rounded-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                                style = {{ backgroundColor: "#1E2A3D", color: "#EDEBE3" }}
+                            >
+                                + Add to Watchlist
+                            </button>
+                        </div>
 
                         <Link
                             href = {`/stocks/${stock.symbol}`}
