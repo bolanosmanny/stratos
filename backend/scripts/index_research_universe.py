@@ -8,6 +8,7 @@ from supabase import Client, create_client
 from services.research_index import (
     index_latest_10k_sections,
     index_latest_10q_sections,
+    index_latest_earnings_release_sections,
 )
 
 
@@ -34,6 +35,7 @@ TICKER_TAPE = [
 FILING_INDEXERS = [
     ("10-K", index_latest_10k_sections),
     ("10-Q", index_latest_10q_sections),
+    ("8-K Earnings Release", index_latest_earnings_release_sections),
 ]
 
 

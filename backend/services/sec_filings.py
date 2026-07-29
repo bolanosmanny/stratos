@@ -52,6 +52,7 @@ def get_latest_filing(
         company: dict,
         headers: dict[str, str],
         form_name: str,
+        required_item: str | None = None,
 ) -> dict:
     submissions = sec_get_json(
         f"https://data.sec.gov/submissions/CIK{company['cik']}.json",
@@ -72,7 +73,10 @@ def get_latest_filing(
 
     for filings in filing_sets:
         for index, form in enumerate(filings["form"]):
-            if form == form_name:
+            item = filings.get("items", [""] * len(filings["form"])) [index] or ""
+            if form == form_name and ( 
+                not required_item or required_item in item
+            ):
                 original_candidates.append(
                     {
                         "accession_number": filings["accessionNumber"][index],

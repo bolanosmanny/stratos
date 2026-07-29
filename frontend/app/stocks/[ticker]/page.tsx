@@ -13,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 
+import StockNews from "@/components/StockNews";
+
 type StockData = {
   symbol: string;
   name: string;
@@ -777,6 +779,10 @@ export default function StockPage() {
                     Fundamentals unavailable for this stock.
                   </p>
                 )}
+                <StockNews 
+                  ticker={ticker}
+                  companyName={profile?.companyName ?? stock.name} 
+                />
               </aside>
             </div>
           </>

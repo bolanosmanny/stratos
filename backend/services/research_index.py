@@ -8,6 +8,8 @@ from .sec_filings import (
     get_latest_10q_sections,
 )
 
+from .earnings_releases import get_latest_earnings_release_sections
+
 def index_latest_filing_sections(
         ticker: str,
         sec_headers: dict[str, str],
@@ -116,4 +118,17 @@ def index_latest_10q_sections(
         supabase,
         get_latest_10q_sections,
         "10-Q"
+    )
+
+def index_latest_earnings_release_sections(
+        ticker: str,
+        sec_headers: dict[str, str],
+        supabase: Client,
+) -> dict:
+    return index_latest_filing_sections(
+        ticker,
+        sec_headers,
+        supabase,
+        get_latest_earnings_release_sections,
+        "8-K · Earnings Release" ,
     )

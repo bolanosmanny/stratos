@@ -14,10 +14,13 @@ from supabase import Client, create_client
 from services.research_index import (
     index_latest_10k_sections,
     index_latest_10q_sections,
+    index_latest_earnings_release_sections,
 )
 from services.retrieval import retrieve_relevant_chunks
 
 from services.research_answer import answer_research_question
+
+from services.news import get_company_news
 
 import time
 
@@ -61,6 +64,11 @@ app.add_middleware(
 )
 
 FMP_API_KEY = os.getenv("FMP_API_KEY")
+
+ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+NEWS_CACHE: dict[str, tuple[float, list[dict]]] = {}
+NEWS_CACHE_TTL_SECONDS = 900 # 15 minutes
+
 QUOTE_CACHE: dict[str, tuple[float, dict]] = {}
 QUOTE_CACHE_TTL_SECONDS = 60
 
@@ -76,6 +84,40 @@ def check_fmp_response(response: requests.Response) -> None:
 @app.get("/")
 def read_root():
     return {"message": "App is running"}
+
+@app.get("/stock/{ticker}/news")
+def get_stock_news(
+    ticker: str,
+    company_name: str = Query(default=""),
+):
+    if not ALPHA_VANTAGE_API_KEY:
+        raise HTTPException(
+            status_code = 500,
+            detail = "ALPHA_VANTAGE_API_KEY is not configured.",
+        )
+
+    symbol = ticker.strip().upper()
+    cached_news = NEWS_CACHE.get(symbol)
+    now = time.time()
+
+    if cached_news and now - cached_news[0] < NEWS_CACHE_TTL_SECONDS:
+        return { 
+            "symbol": symbol,
+            "articles": cached_news[1],
+        }
+
+    articles = get_company_news(
+        symbol,
+        ALPHA_VANTAGE_API_KEY,
+        company_name,
+    )
+
+    NEWS_CACHE[symbol] = (now, articles)
+
+    return { 
+        "symbol": symbol,
+        "articles": articles,
+    }
 
 @app.get("/stock/{ticker}")
 def get_stock(ticker: str):
@@ -518,6 +560,14 @@ def ingest_latest_10k(ticker: str):
 @app.post("/research/ingest-quarterly/{ticker}")
 def ingest_latest_10q(ticker: str):
     return index_latest_10q_sections(
+        ticker,
+        SEC_HEADERS,
+        supabase,
+    )
+
+@app.post("/research/ingest-earnings/{ticker}")
+def ingest_latest_earnings_release(ticker: str):
+    return index_latest_earnings_release_sections(
         ticker,
         SEC_HEADERS,
         supabase,
