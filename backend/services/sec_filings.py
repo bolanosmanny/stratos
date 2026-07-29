@@ -48,7 +48,11 @@ def get_company_from_ticker(
     )
 
 
-def get_latest_10k(company: dict, headers: dict[str, str]) -> dict:
+def get_latest_filing(
+        company: dict,
+        headers: dict[str, str],
+        form_name: str,
+) -> dict:
     submissions = sec_get_json(
         f"https://data.sec.gov/submissions/CIK{company['cik']}.json",
         headers,
@@ -56,54 +60,62 @@ def get_latest_10k(company: dict, headers: dict[str, str]) -> dict:
 
     filing_sets = [submissions["filings"]["recent"]]
 
-    for filing_file in submissions["filings"].get("files", []):
+    for filing_file in submissions["filings"].get("files",[]):
         historical_filings = sec_get_json(
             f"https://data.sec.gov/submissions/{filing_file['name']}",
             headers,
         )
         filing_sets.append(historical_filings)
 
-    original_10k_candidates = []
+    original_candidates = []
     amendment_candidates = []
 
     for filings in filing_sets:
         for index, form in enumerate(filings["form"]):
-            if not form.startswith("10-K"):
-                continue
+            if form == form_name:
+                original_candidates.append(
+                    {
+                        "accession_number": filings["accessionNumber"][index],
+                        "filing_date": filings["filingDate"][index],
+                        "primary_document": filings["primaryDocument"][index],
+                    }
+                )
 
-            candidate = {
-                "accession_number": filings["accessionNumber"][index],
-                "filing_date": filings["filingDate"][index],
-                "primary_document": filings["primaryDocument"][index],
-            }
+            elif form == f"{form_name}/A":
+                amendment_candidates.append(
+                    {
+                        "accession_number": filings["accessionNumber"][index],
+                        "filing_date": filings["filingDate"][index],
+                        "primary_document": filings["primaryDocument"][index],
+                    }
+                )
 
-            if form == "10-K":
-                original_10k_candidates.append(candidate)
-            else:
-                amendment_candidates.append(candidate)
-
-    candidates = original_10k_candidates or amendment_candidates
+    candidates = original_candidates or amendment_candidates
 
     if not candidates:
         raise HTTPException(
-            status_code=404,
-            detail=f"No 10-K filing found for {company['ticker']}.",
+            status_code = 404,
+            detail = f"No {form_name} filing found for {company['ticker']},",
         )
 
     latest = max(candidates, key=lambda filing: filing["filing_date"])
 
     cik_without_zeros = str(int(company["cik"]))
-    accession_without_dashes = latest["accession_number"].replace("-", "")
+    accession_without_dashes = latest["accession_number"].replace("-","")
 
-    return {
-        "accession_number": latest["accession_number"],
-        "filing_date": latest["filing_date"],
-        "source_url": (
-            "https://www.sec.gov/Archives/edgar/data/"
-            f"{cik_without_zeros}/{accession_without_dashes}/"
-            f"{latest['primary_document']}"
-        ),
+    return { 
+        "accession_number" : latest["accession_number"],
+        "filing_date" : latest["filing_date"],
+        "source_url": f"https://www.sec.gov/Archives/edgar/data/"
+        f"{cik_without_zeros}/{accession_without_dashes}/"
+        f"{latest['primary_document']}",
     }
+
+def get_latest_10k(company: dict, headers: dict[str, str]) -> dict:
+    return get_latest_filing(company, headers, "10-K")
+
+def get_latest_10q(company: dict, headers: dict[str, str]) -> dict:
+    return get_latest_filing(company, headers, "10-Q")
 
 
 def filing_html_to_text(html: str) -> str:
@@ -113,7 +125,6 @@ def filing_html_to_text(html: str) -> str:
         tag.decompose()
 
     return re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
-
 
 def extract_section(
         text: str,
@@ -306,3 +317,88 @@ def get_latest_10k_sections(
         )
 
     return company, filing, sections
+
+def get_latest_10q_sections(
+        ticker: str,
+        headers: dict[str, str],
+) -> tuple[dict, dict, list[dict]]:
+    company = get_company_from_ticker(ticker, headers)
+    filing = get_latest_10q(company, headers)
+
+    response = requests.get(
+        filing["source_url"],
+        headers=headers,
+        timeout=60,  
+    )
+    response.raise_for_status()
+
+    text = filing_html_to_text(response.text)
+
+    section_definitions = [
+        {
+            "section": "Management's Discussion and Analysis",
+            "start_pattern": ( 
+                r"item\s*2\b[^\w]{0,30}"
+                r"management[’']?s\s+discussion\s+(?:and|&)\s+analysis"
+            ),
+            "end_pattern": ( 
+                r"item\s*3\b[^\w]{0,30}"
+                r"(?:quantitative|legal\s+proceedings)|"
+                r"item\s*4\b"
+            ),
+        },
+        {
+            "section": "Risk Factors",
+            "start_pattern": r"item\s*1a\b[^\w]{0,20}risk\s+factors",
+            "end_pattern": r"item\s*2\b",
+        },
+    ]
+
+    sections = []
+
+    for definition in section_definitions:
+        content = extract_section(
+            text,
+            definition["start_pattern"],
+            definition["end_pattern"],
+        )
+
+        if content:
+            sections.append(
+                {
+                    "section": definition["section"],
+                    "chunks": chunk_text(content),
+                }
+            )
+
+    if not sections:
+        fallback_content = extract_section(
+            text,
+            (
+                r"\bmanagement[’']?s\s+discussion\s+"
+                r"(?:and|&)\s+analysis\b"
+            ),
+            (
+                r"\bquantitative\s+and\s+qualitative\s+"
+                r"disclosures\s+about\s+market\s+risk\b|"
+                r"\bitem\s*3\b|"
+                r"\bitem\s*4\b"
+            ),
+        )
+
+        if fallback_content:
+            sections.append(
+                {
+                    "section": "Management's Discussion and Analysis",
+                    "chunks": chunk_text(fallback_content),
+                }
+            )
+
+    if not sections:
+        raise HTTPException(
+            status_code = 422,
+            detail = "Could not extract supported sections from this 10-Q.",
+        )
+
+    return company, filing, sections
+    

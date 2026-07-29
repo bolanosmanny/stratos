@@ -5,7 +5,10 @@ import time
 from dotenv import load_dotenv
 from supabase import Client, create_client
 
-from services.research_index import index_latest_10k_sections
+from services.research_index import (
+    index_latest_10k_sections,
+    index_latest_10q_sections,
+)
 
 
 TICKER_TAPE = [
@@ -27,6 +30,12 @@ TICKER_TAPE = [
     "AMD",
     "COST",
 ]
+
+FILING_INDEXERS = [
+    ("10-K", index_latest_10k_sections),
+    ("10-Q", index_latest_10q_sections),
+]
+
 
 
 def create_supabase_client() -> Client:
@@ -61,36 +70,38 @@ def main() -> None:
     for position, ticker in enumerate(TICKER_TAPE, start=1):
         print(f"\n[{position}/{len(TICKER_TAPE)}] Indexing {ticker}...")
 
-        try:
-            result = index_latest_10k_sections(
-                ticker,
-                sec_headers,
-                supabase,
-            )
-
-            section_summary = ", ".join(
-                (
-                    f"{section['section']}: "
-                    f"{section['chunks_indexed']} chunks"
+        for filing_type, indexer in FILING_INDEXERS:
+            try:
+                result = indexer(
+                    ticker,
+                    sec_headers,
+                    supabase,
                 )
-                for section in result["sections"]
-            )
 
-            print(
-                f"✓ {ticker}: {result['chunks_indexed']} chunks indexed "
-                f"({section_summary})"
-            )
-            successful.append(ticker)
+                section_summary = ", ".join(
+                    (
+                        f"{section['section']}: "
+                        f"{section['chunks_indexed']} chunks"
+                    )
+                    for section in result["sections"]
+                )
 
-        except Exception as error:
-            print(f"✗ {ticker}: {error}")
-            failed.append(ticker)
+                print(
+                    f"✓ {filing_type}: "
+                    f"{result['chunks_indexed']} chunks indexed "
+                    f"({section_summary})"
+                )
+                successful.append(f"{ticker}{filing_type}")
 
-        time.sleep(0.2)
+            except Exception as error:
+                print(f"✗ {filing_type}: {error}")
+                failed.append(f"{ticker}{filing_type}")
+
+            time.sleep(0.3)
 
     print("\n--- Indexing summary ---")
-    print(f"Successful: {len(successful)}")
-    print(f"Failed: {len(failed)}")
+    print(f"Successful filing jobs: {len(successful)}")
+    print(f"Failed filing jobs: {len(failed)}")
 
     if failed:
         print(f"Failed tickers: {', '.join(failed)}")

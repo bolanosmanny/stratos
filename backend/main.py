@@ -11,7 +11,10 @@ from pydantic import BaseModel
 
 from supabase import Client, create_client
 
-from services.research_index import index_latest_10k_sections
+from services.research_index import (
+    index_latest_10k_sections,
+    index_latest_10q_sections,
+)
 from services.retrieval import retrieve_relevant_chunks
 
 from services.research_answer import answer_research_question
@@ -511,6 +514,14 @@ def ingest_latest_10k(ticker: str):
         SEC_HEADERS,
         supabase,
 )
+
+@app.post("/research/ingest-quarterly/{ticker}")
+def ingest_latest_10q(ticker: str):
+    return index_latest_10q_sections(
+        ticker,
+        SEC_HEADERS,
+        supabase,
+    )
 
 @app.post("/research/retrieve")
 def retrieve_research_chunks(request: ResearchRequest):

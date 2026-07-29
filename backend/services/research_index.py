@@ -3,15 +3,20 @@ from fastapi import HTTPException
 from supabase import Client
 
 from .embeddings import create_embeddings
-from .sec_filings import get_latest_10k_sections
+from .sec_filings import (
+    get_latest_10k_sections,
+    get_latest_10q_sections,
+)
 
-def index_latest_10k_sections(
+def index_latest_filing_sections(
         ticker: str,
         sec_headers: dict[str, str],
         supabase: Client,
+        section_loader,
+        filing_type: str,
 ) -> dict:
     try:
-        company, filing, sections = get_latest_10k_sections(
+        company, filing, sections = section_loader(
             ticker,
             sec_headers
         )
@@ -42,7 +47,7 @@ def index_latest_10k_sections(
                 {
                     "ticker": company["ticker"],
                     "company_name": company["name"],
-                    "filing_type": "10-K",
+                    "filing_type": filing_type,
                     "section": section,
                     "filing_date": filing["filing_date"],
                     "accession_number": filing["accession_number"],
@@ -86,3 +91,29 @@ def index_latest_10k_sections(
             status_code=502,
             detail=f"SEC filing request failed: {error}",
         )
+
+def index_latest_10k_sections(
+        ticker: str,
+        sec_headers: dict[str, str],
+        supabase: Client,
+) -> dict:
+    return index_latest_filing_sections(
+        ticker,
+        sec_headers,
+        supabase,
+        get_latest_10k_sections,
+        "10-K",
+    )
+
+def index_latest_10q_sections(
+        ticker: str,
+        sec_headers: dict[str, str],
+        supabase: Client,
+) -> dict:
+    return index_latest_filing_sections(
+        ticker,
+        sec_headers,
+        supabase,
+        get_latest_10q_sections,
+        "10-Q"
+    )
