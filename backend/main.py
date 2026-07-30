@@ -56,11 +56,20 @@ OLLAMA_MODEL = os.getenv(
     "qwen2.5:7b",
 )
 
+FRONTEND_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "FRONTEND_ORIGINS",
+        "http://localhost:3000",
+    ).split(",")
+    if origin.strip()
+]
+
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_ORIGINS],
     allow_methods=["*"],
     allow_headers=["*"]
 )
