@@ -24,6 +24,8 @@ from services.news import get_company_news
 
 import time
 
+from services.filing_timeline import get_company_filing_events
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -117,6 +119,18 @@ def get_stock_news(
     return { 
         "symbol": symbol,
         "articles": articles,
+    }
+
+@app.get("/stock/{ticker}/events")
+def get_stock_events(ticker: str):
+    symbol = ticker.strip().upper()
+
+    return { 
+        "symbol": symbol,
+        "events": get_company_filing_events(
+            symbol,
+            SEC_HEADERS,
+        ),
     }
 
 @app.get("/stock/{ticker}")

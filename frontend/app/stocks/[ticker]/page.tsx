@@ -15,6 +15,8 @@ import {
 
 import StockNews from "@/components/StockNews";
 
+import FilingTimeline from "@/components/FilingTimeline";
+
 type StockData = {
   symbol: string;
   name: string;
@@ -313,6 +315,7 @@ export default function StockPage() {
             </div>
 
             <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)_280px]">
+              <div className="space-y-8">
               {financialHealth && (
                 <aside
                   className="h-fit p-5"
@@ -401,6 +404,17 @@ export default function StockPage() {
                   </div>
                 </aside>
               )}
+
+              <aside
+                className = "h-ft p-5"
+                style = {{
+                  backgroundColor: "#0E1726",
+                  border: "1px solid #1E2A3D",
+                }}
+              >
+                <FilingTimeline ticker = {ticker} />
+              </aside>
+              </div>
 
               <div>
                 <div
@@ -691,6 +705,7 @@ export default function StockPage() {
                 )}
               </div>
 
+              <div className="space-y-8">
               <aside
                 className="h-fit p-5"
                 style={{
@@ -779,11 +794,22 @@ export default function StockPage() {
                     Fundamentals unavailable for this stock.
                   </p>
                 )}
-                <StockNews 
-                  ticker={ticker}
-                  companyName={profile?.companyName ?? stock.name} 
+              </aside>
+
+              <aside
+                className = "h-fit p-5"
+                style = {{ 
+                  backgroundColor: "#0E1726",
+                  border: "1px solid #1E2A3D",
+                }}
+              >
+                <StockNews
+                  ticker = {ticker}
+                  companyName = {profile?.companyName ?? stock.name}
                 />
               </aside>
+              </div>
+
             </div>
           </>
         )}

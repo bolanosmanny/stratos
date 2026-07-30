@@ -95,15 +95,12 @@ export default function StockNews({
 }, [ticker, companyName]);
 
 return ( 
-    <section 
-        className = "mt-8 pt-6"
-        style = {{ borderTop: "1px solid #1E2A3D" }}
-    >
+    <section>
         <p
             className = "text-xs uppercase"
             style = {{ 
                 letterSpacing: "0.15em",
-                color: "# 8A93A6",
+                color: "#8A93A6",
                 fontFamily: "'IBM Plex Mono', monospace",
             }}
         >
