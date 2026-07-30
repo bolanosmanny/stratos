@@ -200,7 +200,7 @@ export default function ResearchPage() {
             
             <SiteNav />
 
-            <section className = "max-w-5xl mx-auto px-6 py-12">
+            <section className = "w-full max-w-7xl mx-auto px-8 py-12">
                 
                 <div className = "flex items-start gap-5">
                     <div
@@ -376,127 +376,8 @@ export default function ResearchPage() {
                                 </button>
                             ))}
                         </div>    
-                    </section>
 
-                    <aside
-                        className = "h-fit p-5"
-                        style = {{
-                            backgroundColor: "#0E1726",
-                            border: "1px solid #1E2A3D",
-                        }}
-                    >
-                        <p
-                            className = "text-xs uppercase"
-                            style = {{
-                                letterSpacing: "0.15em",
-                                color: "#8A93A6",
-                                fontFamily: "'IBM Plex Mono', monospace",
-                            }}
-                        >
-                            Source Coverage
-                        </p>
-
-                        <div className = "mt-5 space-y-4">
-                            {[
-                                ["SEC Filings", "10-K and 10-Q reports"],
-                                ["Earnings", "Official 8-K earnings releases"],
-                                ["Citations", "Verifiable source excerpts"],
-                            ].map(([label, detail]) => (
-                                <div 
-                                    key={label}
-                                    className = "pb-4"
-                                    style = {{ borderBottom: "1px solid #1E2A3D" }}
-                                >
-                                    <p className = "text-sm">{label}</p>
-                                    <p className = "mt-1 text-xs" style = {{ color: "#8A93A6" }}>
-                                        {detail}
-                                    </p>    
-                                </div>
-                            ))}
-                        </div>
-
-                        <div
-                            className = "mt-6 pt-5"
-                            style = {{ borderTop: "1px solid #1E2A3D" }}
-                        >
-                            <p
-                                className = "text-xs uppercase"
-                                style = {{
-                                    letterSpacing: "0.15em",
-                                    color: "#8A93A6",
-                                    fontFamily: "'IBM Plex Mono', monospace",
-                                }}
-                            >
-                                Research History
-                            </p>
-
-                            {historyLoading && ( 
-                                <p
-                                    className = "mt-4 text-sm"
-                                    style = {{ color: "#8A93A6" }}
-                                >
-                                    Loading history...
-                                </p>
-                            )}
-
-                            {!historyLoading && researchHistory.length === 0 && (
-                                <p
-                                    className = "mt-4 text-sm"
-                                    style = {{ color: "#8A93A6" }}
-                                >
-                                    Your saved Sparky research history will appear here.
-                                </p>
-                            )}
-
-                            <div className = "mt-4 space-y-3">
-                                {researchHistory.map((entry) => ( 
-                                    <button
-                                        key = {entry.id}
-                                        type = "button"
-                                        onClick = {() => { 
-                                            setTicker(entry.ticker);
-                                            setQuestion(entry.question);
-                                            setSubmittedQuestion(entry.question);
-                                            setAnswer(entry.answer);
-                                            setCitations(entry.citations ?? []);
-                                        }}
-                                        className = "w-full text-left transition-opacity hover:opacity-80"
-                                        style = {{
-                                            color: "#C9963C",
-                                            fontFamily: "'IBM Plex Mono', monospace",
-                                        }}
-                                    >
-                                        <p
-                                            className = "text-sm"
-                                            style = {{ 
-                                                color: "#C9963C",
-                                                fontFamily: "'IBM Plex Mono', monospace",
-                                            }}
-                                        >
-                                            {entry.ticker} ·{" "}
-                                            {new Date(
-                                                entry.created_at
-                                            ).toLocaleDateString("en-US", { 
-                                                month: "short",
-                                                day: "numeric",
-                                            })}
-                                        </p>
-
-                                        <p
-                                            className = "mt-1 text-sm leading-5"
-                                            style = {{ color: "#EDEBE3" }}
-                                        >
-                                            {entry.question}
-                                        </p>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                    </aside>
-                </div>
-
-                {submittedQuestion && (
+                        {submittedQuestion && (
                     <section
                         className = "mt-10 p-6"
                         style = {{
@@ -577,6 +458,125 @@ export default function ResearchPage() {
                         )}
                     </section>
                 )}
+
+                    </section>
+
+                    <aside
+                        className = "h-fit p-5"
+                        style = {{
+                            backgroundColor: "#0E1726",
+                            border: "1px solid #1E2A3D",
+                        }}
+                    >
+                        <p
+                            className = "text-xs uppercase"
+                            style = {{
+                                letterSpacing: "0.15em",
+                                color: "#8A93A6",
+                                fontFamily: "'IBM Plex Mono', monospace",
+                            }}
+                        >
+                            Source Coverage
+                        </p>
+
+                        <div className = "mt-5 space-y-4">
+                            {[
+                                ["SEC Filings", "10-K and 10-Q reports"],
+                                ["Earnings", "Official 8-K earnings releases"],
+                                ["Citations", "Verifiable source excerpts"],
+                            ].map(([label, detail]) => (
+                                <div 
+                                    key={label}
+                                    className = "pb-4"
+                                    style = {{ borderBottom: "1px solid #1E2A3D" }}
+                                >
+                                    <p className = "text-sm">{label}</p>
+                                    <p className = "mt-1 text-xs" style = {{ color: "#8A93A6" }}>
+                                        {detail}
+                                    </p>    
+                                </div>
+                            ))}
+                        </div>
+
+                        <div
+                            className = "mt-6 pt-5"
+                            style = {{ borderTop: "1px solid #1E2A3D" }}
+                        >
+                            <p
+                                className = "text-xs uppercase"
+                                style = {{
+                                    letterSpacing: "0.15em",
+                                    color: "#8A93A6",
+                                    fontFamily: "'IBM Plex Mono', monospace",
+                                }}
+                            >
+                                Research History
+                            </p>
+
+                            {historyLoading && ( 
+                                <p
+                                    className = "mt-4 text-sm"
+                                    style = {{ color: "#8A93A6" }}
+                                >
+                                    Loading history...
+                                </p>
+                            )}
+
+                            {!historyLoading && researchHistory.length === 0 && (
+                                <p
+                                    className = "mt-4 text-sm"
+                                    style = {{ color: "#8A93A6" }}
+                                >
+                                    Your saved Sparky research history will appear here.
+                                </p>
+                            )}
+
+                            <div className = "mt-4 max-h-80 space-y-3 overflow-y-auto pr-2">
+                                {researchHistory.map((entry) => ( 
+                                    <button
+                                        key = {entry.id}
+                                        type = "button"
+                                        onClick = {() => { 
+                                            setTicker(entry.ticker);
+                                            setQuestion(entry.question);
+                                            setSubmittedQuestion(entry.question);
+                                            setAnswer(entry.answer);
+                                            setCitations(entry.citations ?? []);
+                                        }}
+                                        className = "w-full text-left transition-opacity hover:opacity-80"
+                                        style = {{
+                                            color: "#C9963C",
+                                            fontFamily: "'IBM Plex Mono', monospace",
+                                        }}
+                                    >
+                                        <p
+                                            className = "text-sm"
+                                            style = {{ 
+                                                color: "#C9963C",
+                                                fontFamily: "'IBM Plex Mono', monospace",
+                                            }}
+                                        >
+                                            {entry.ticker} ·{" "}
+                                            {new Date(
+                                                entry.created_at
+                                            ).toLocaleDateString("en-US", { 
+                                                month: "short",
+                                                day: "numeric",
+                                            })}
+                                        </p>
+
+                                        <p
+                                            className = "mt-1 text-sm leading-5"
+                                            style = {{ color: "#EDEBE3" }}
+                                        >
+                                            {entry.question}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </section>
         </main>    
     );
