@@ -1,0 +1,13 @@
+startos-fin-app.duckdns.org { 
+    encode zstd gzip
+
+    @api path /api/*
+    handle @api { 
+        uri strip_prefix /api
+        reverse_proxy api:8000
+    }
+
+    handle { 
+        reverse_proxy frontend:3000
+    }
+}

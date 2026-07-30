@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPi, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
 from dotenv import load_dotenv
 
 from datetime import date, timedelta
-from fastapi import HTTPException, Query
+from collections import defaultdict, deque
+from secrets import compare_digest
 
 from pydantic import BaseModel
 
@@ -82,6 +83,61 @@ NEWS_CACHE_TTL_SECONDS = 900 # 15 minutes
 
 QUOTE_CACHE: dict[str, tuple[float, dict]] = {}
 QUOTE_CACHE_TTL_SECONDS = 60
+
+APP_ENV = os.getenv("APP_ENV", "development").lower()
+INGEST_ADMIN_TOKEN = os.getenv("INGEST_ADMIN_TOKEN", "")
+
+RESEARCH_RATE_LIMIT = int(os.getenv("RESEARCH_RATE_LIMIT", "6"))
+RESEARCH_RATE_WINDOW_SECONDS = int(
+    os.getenv("RESEARCH_RATE_WINDOW_SECONDS", "600")
+)
+RESEARCH_REQUESTS: dict[str, deque[float]] = defaultdict(deque)
+
+def get_client_key(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+
+    if request.client:
+        return request.client.host
+
+    return "unknown"
+
+def enforce_research_rate_limit(request: Request) -> None:
+    client_key = get_client_key(request)
+    now = time.monotonic()
+    timestamps = RESEARCH_REQUESTS[client_key]
+
+    while ( 
+        timestamps
+        and now - timestamps[0] > RESEARCH_RATE_WINDOW_SECONDS
+    ):
+        timestamps.popleft()
+
+    if len(timestamps) >= RESEARCH_RATE_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail="Research request rate limit exceeded. Please try again later.",
+        )
+
+    timestamps.append(now)
+
+def require_ingest_admin_token(
+        x_ingest_token: str | None = Header(default=None),     
+) -> None:
+    if APP_ENV != "production":
+        return
+
+    if (
+        not INGEST_ADMIN_TOKEN
+        or not x_ingest_token
+        or not compare_digest(x_ingest_token, INGEST_ADMIN_TOKEN)
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Ingestion is disabled for public requests",
+        )
 
 def check_fmp_response(response: requests.Response) -> None:
     if response.status_code == 429:
@@ -521,7 +577,12 @@ class ResearchRequest(BaseModel):
     question: str
 
 @app.post("/research")
-def research_company(request: ResearchRequest):
+def research_company(
+    request: ResearchRequest,
+    http_request: Request,
+):
+    enforce_research_rate_limit(http_request)
+
     ticker = request.ticker.strip().upper()
     question = request.question.strip()
 
@@ -573,7 +634,11 @@ def research_status():
         )
 
 @app.post("/research/ingest/{ticker}")
-def ingest_latest_10k(ticker: str):
+def ingest_latest_10k(
+    ticker: str,
+    _: None = Depends(require_ingest_admin_token),
+):
+    
     return index_latest_10k_sections(
         ticker,
         SEC_HEADERS,
@@ -581,7 +646,11 @@ def ingest_latest_10k(ticker: str):
 )
 
 @app.post("/research/ingest-quarterly/{ticker}")
-def ingest_latest_10q(ticker: str):
+def ingest_latest_10q(
+    ticker: str,
+    _: None = Depends(require_ingest_admin_token)
+):
+    
     return index_latest_10q_sections(
         ticker,
         SEC_HEADERS,
@@ -589,7 +658,11 @@ def ingest_latest_10q(ticker: str):
     )
 
 @app.post("/research/ingest-earnings/{ticker}")
-def ingest_latest_earnings_release(ticker: str):
+def ingest_latest_earnings_release(
+    ticker: str,
+    _: None = Depends(require_ingest_admin_token)
+):
+    
     return index_latest_earnings_release_sections(
         ticker,
         SEC_HEADERS,
