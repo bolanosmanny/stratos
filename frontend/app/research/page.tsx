@@ -1,8 +1,9 @@
 "use client"
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { supabase } from "@/lib/supabaseClient";
 
 type Citation = { 
     label: number;
@@ -11,6 +12,15 @@ type Citation = {
     source_url: string;
     section: string;
     excerpt: string;
+};
+
+type ResearchHistoryEntry = { 
+    id: number;
+    ticker: string;
+    question: string;
+    answer: string;
+    citations: Citation[];
+    created_at: string;
 };
 
 function formatAnswer(text: string) {
@@ -56,6 +66,76 @@ export default function ResearchPage() {
     const [citations, setCitations] = useState<Citation[]>([]);
     const [researchLoading, setResearchLoading] = useState(false);
     const [researchError, setResearchError] = useState("");
+    
+    const [researchHistory, setResearchHistory] = useState<ResearchHistoryEntry[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(true);
+
+    useEffect(() => { 
+        let isActive = true;
+
+        const loadResearchHistory = async () => { 
+            const { data: userData } = await supabase.auth.getUser();
+
+            if (!userData.user) { 
+                if (isActive) setHistoryLoading(false);
+                return;
+            }
+
+            const { data } = await supabase
+                .from("research_history")
+                .select(
+                    "id, ticker, question, answer, citations, created_at"
+                )
+                .eq("user_id", userData.user.id)
+                .order("created_at", { ascending: false })
+                .limit(5);
+
+            if (isActive) { 
+                setResearchHistory(
+                    (data ?? []) as unknown as ResearchHistoryEntry[]
+                );
+                setHistoryLoading(false);
+            }
+        };
+
+        loadResearchHistory();
+
+        return () => { 
+            isActive = false;
+        };
+    }, []);
+
+    const saveResearchHistory = async ( 
+        researchTicker: string,
+        researchQuestion: string,
+        researchAnswer: string,
+        researchCitations: Citation[],
+    ) => { 
+        const { data: userData } = await supabase.auth.getUser();
+
+        if (!userData.user) return;
+
+        const { data: savedEntry } = await supabase
+            .from("research_history")
+            .insert({
+                user_id: userData.user.id,
+                ticker: researchTicker,
+                question: researchQuestion,
+                answer: researchAnswer,
+                citations: researchCitations,
+            })
+            .select(
+                "id, ticker, question, answer, citations, created_at"
+            ).single();
+
+        if (savedEntry) { 
+            setResearchHistory((curent) => [
+                savedEntry as unknown as ResearchHistoryEntry,
+                ...curent
+            ].slice(0,5));
+        }
+
+    }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -89,6 +169,13 @@ export default function ResearchPage() {
             setSubmittedQuestion(data.question);
             setAnswer(data.answer);
             setCitations(data.citations ?? []);
+            await saveResearchHistory(
+                data.ticker,
+                data.question,
+                data.answer,
+                data.citations ?? [],
+            )
+
         } catch (error) {
             setResearchError(
                 error instanceof Error
@@ -350,6 +437,85 @@ export default function ResearchPage() {
                                 </div>
                             ))}
                         </div>
+
+                        <div
+                            className = "mt-6 pt-5"
+                            style = {{ borderTop: "1px solid #1E2A3D" }}
+                        >
+                            <p
+                                className = "text-xs uppercase"
+                                style = {{
+                                    letterSpacing: "0.15em",
+                                    color: "#8A93A6",
+                                    fontFamily: "'IBM Plex Mono', monospace",
+                                }}
+                            >
+                                Research History
+                            </p>
+
+                            {historyLoading && ( 
+                                <p
+                                    className = "mt-4 text-sm"
+                                    style = {{ color: "#8A93A6" }}
+                                >
+                                    Loading history...
+                                </p>
+                            )}
+
+                            {!historyLoading && researchHistory.length === 0 && (
+                                <p
+                                    className = "mt-4 text-sm"
+                                    style = {{ color: "#8A93A6" }}
+                                >
+                                    Your saved Sparky research history will appear here.
+                                </p>
+                            )}
+
+                            <div className = "mt-4 space-y-3">
+                                {researchHistory.map((entry) => ( 
+                                    <button
+                                        key = {entry.id}
+                                        type = "button"
+                                        onClick = {() => { 
+                                            setTicker(entry.ticker);
+                                            setQuestion(entry.question);
+                                            setSubmittedQuestion(entry.question);
+                                            setAnswer(entry.answer);
+                                            setCitations(entry.citations ?? []);
+                                        }}
+                                        className = "w-full text-left transition-opacity hover:opacity-80"
+                                        style = {{
+                                            color: "#C9963C",
+                                            fontFamily: "'IBM Plex Mono', monospace",
+                                        }}
+                                    >
+                                        <p
+                                            className = "text-sm"
+                                            style = {{ 
+                                                color: "#C9963C",
+                                                fontFamily: "'IBM Plex Mono', monospace",
+                                            }}
+                                        >
+                                            {entry.ticker} ·{" "}
+                                            {new Date(
+                                                entry.created_at
+                                            ).toLocaleDateString("en-US", { 
+                                                month: "short",
+                                                day: "numeric",
+                                            })}
+                                        </p>
+
+                                        <p
+                                            className = "mt-1 text-sm leading-5"
+                                            style = {{ color: "#EDEBE3" }}
+                                        >
+                                            {entry.question}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                     </aside>
                 </div>
 
