@@ -1,9 +1,9 @@
 "use client"
 
 import { FormEvent, useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
+import SiteNav from "@/components/SiteNav";
 
 type Citation = { 
     label: number;
@@ -46,7 +46,7 @@ const SUGGESTED_QUESTIONS = [
     },
     {
         ticker: "NVDA",
-        question: "What risks does Nvidia mention in it's latest filing",
+        question: "What risks does Nvidia mention in its latest filing",
     },
     {
         ticker: "MSFT",
@@ -196,32 +196,8 @@ export default function ResearchPage() {
                 fontFamily: "Inter, sans-serif",
             }}
         >
-            <nav
-                className = "flex items-center gap-6 px-6 py-4"
-                style = {{
-                    borderBottom: "1px solid #1E2A3D",
-                    backgroundColor: "#0E1726",
-                }}
-            >
-                <Link
-                    href="/dashboard"
-                    className = "text-sm font-semibold"
-                    style = {{
-                        color: "#EDEBE3",
-                        fontFamily: "'IBM Plex Mono', monospace",
-                    }}
-                >
-                    STRATOS
-                </Link> 
-
-                <Link
-                    href="/research"
-                    className = "text-sm"
-                    style = {{ color: "#C9963C"}}
-                >
-                    AI Research
-                </Link>
-            </nav>
+            
+            <SiteNav />
 
             <section className = "max-w-5xl mx-auto px-6 py-12">
                 
@@ -264,8 +240,8 @@ export default function ResearchPage() {
                             className = "mt-4 max-w-2xl text-base leading-7"
                             style = {{ color: "#B8BFCC" }}
                         >
-                            Sparky searches company SEC filings, earnings material, and financial
-                            context, then answers with citations so you can verify the source.
+                            Sparky searches SEC annual reports, quarterly filings, and official earnings
+                            releases, then answers with citations so you can verify the source.
                         </p>
                     </div>     
                 </div>
@@ -422,7 +398,7 @@ export default function ResearchPage() {
                         <div className = "mt-5 space-y-4">
                             {[
                                 ["SEC Filings", "10-K and 10-Q reports"],
-                                ["Earnings", "Calls and company results"],
+                                ["Earnings", "Official 8-K earnings releases"],
                                 ["Citations", "Verifiable source excerpts"],
                             ].map(([label, detail]) => (
                                 <div 
@@ -535,7 +511,7 @@ export default function ResearchPage() {
                                 fontFamily: "'IBM Plex Mono', monospace",
                             }}
                         >
-                            {ticker} Research Request
+                            {ticker} Research Question
                         </p>
 
                         <p className = "mt-3 text-lg">{submittedQuestion}</p>

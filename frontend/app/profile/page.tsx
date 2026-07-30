@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import SiteNav from "@/components/SiteNav";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -142,64 +142,8 @@ export default function ProfilePage() {
                 fontFamily: "Inter, sans-serif",
             }}
         >
-            <nav
-                className = "flex items-center gap-6 px-6 py-4"
-                style = {{ 
-                    borderBottom: "1px solid #1E2A3D",
-                    backgroundColor: "#0E1726",
-                }}
-            >
-                <Link
-                    href = "/"
-                    className = "text-sm font-semibold"
-                    style = {{ 
-                        color: "#EDEBE3",
-                        fontFamily: "'IBM Plex Mono', monospace",
-                    }}
-                >
-                    STRATOS
-                </Link>
-
-                <Link
-                    href="/"
-                    className = "text-sm"
-                    style = {{ color: "#8A93A6" }}
-                >
-                    Watchlists
-                </Link>
-
-                <Link
-                    href="/dashboard"
-                    className = "text-sm"
-                    style = {{ color: "#8A93A6" }}
-                >
-                    Research Dashboard
-                </Link>
-
-                <Link
-                    href="/research"
-                    className = "text-sm"
-                    style = {{ color: "#8A93A6" }}
-                >
-                    Sparky AI
-                </Link>
-
-                <Link
-                    href="/portfolio"
-                    className = "text-sm"
-                    style = {{ color: "#8A93A6" }}
-                >
-                    Portfolio
-                </Link>
-
-                <Link
-                    href="/profile"
-                    className = "text-sm"
-                    style = {{ color: "#8A93A6" }}
-                >
-                    Profile
-                </Link>
-            </nav>
+            
+            <SiteNav />
 
             <section className = "max-w-3xl mx-auto px-6 py-14">
                 <p

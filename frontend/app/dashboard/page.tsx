@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import SiteNav from "@/components/SiteNav";
 
 type StockData = {
     symbol: string;
@@ -208,6 +209,9 @@ export default function Dashboard() {
             className = "min-h-screen"
             style = {{ backgroundColor: "#0B1120", color: "#EDEBE3", fontFamily: "Inter, sans-serif" }}
         >
+
+            <SiteNav />
+
             {/* Ticker Tape string */}
             <div
                 className = "overflow-hidden border-b whitespace-nowrap"
@@ -263,6 +267,59 @@ export default function Dashboard() {
                         {loading ? "Searching..." : "Search"}
                     </button>
                 </div>
+
+                {!stock && !loading && !error && ( 
+                    <section className = "grid gap-4 md:grid-cols-3">
+                        <div
+                            className = "p-5"
+                            style = {{ 
+                                border: "1px solid #1E2A3D",
+                                backgroundColor: "#0E1726",
+                            }}
+                        >
+                            <p className = "text-xs uppercase mb-3" style = {{ color: "C9963C", letterSpacing: "0.12em" }}>
+                                Company Research
+                            </p>
+
+                            <p className = "text-sm leading-6" style = {{ color: "#B8BFCC" }}>
+                                Search any supported ticker to view market data, financial health, filings, and news.
+                            </p>
+                        </div>
+
+                        <Link
+                            href = "/research"
+                            className = "block p-5 transition-opacity hover:opacity-80"
+                            style = {{ 
+                                border: "1px solid #1E2A3D",
+                                backgroundColor: "#0E1726",
+                            }}
+                        >
+                            <p className = "text-xs uppercase mb-3" style = {{ color: "C9963C", letterSpacing: "0.12em" }}>
+                                AI Research
+                            </p>
+                            <p className = "text-sm leading-6" style = {{ color: "#B8BFCC" }}>
+                                Asky Sparky questions grounded in SEC filings and official earnings releases.
+                            </p>
+                        </Link>
+
+                        <Link 
+                            href="/portfolio"
+                            className = "block p-5 transition-opacity hover:opacity-80"
+                            style = {{ 
+                                border: "1px solid #1E2A3D",
+                                backgroundColor: "#0E1726",
+                            }}
+                        >
+                            <p className = "text-xs uppercase mb-3" style = {{ color: "C9963C", letterSpacing: "0.12em" }}>
+                                Portfolio Tracker
+                            </p>
+
+                            <p className = "text-sm leading-6" style = {{ color: "#B8BFCC" }}>
+                                Track purchase lots, current value, allocation, and performance.
+                            </p>
+                        </Link>
+                    </section>
+                )}
 
                 {error && (
                     <p className = "text-sm mb-8" style = {{ color: "#B5675A", fontFamily: "'IBM Plex Mono', monospace" }}>
