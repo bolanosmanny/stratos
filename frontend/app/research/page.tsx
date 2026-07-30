@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import SiteNav from "@/components/SiteNav";
+import { API_BASE_URL } from "@/lib/api" ;
 
 type Citation = { 
     label: number;
@@ -149,7 +150,7 @@ export default function ResearchPage() {
         setSubmittedQuestion("");
 
         try { 
-            const response = await fetch("http://localhost:8000/research", {
+            const response = await fetch(`${API_BASE_URL}/research`, {
                 method: "POST",
                 headers: {
                     "Content-Type" : "application/json",

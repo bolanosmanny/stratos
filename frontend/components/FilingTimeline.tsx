@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE_URL } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 type FilingEvent = {
@@ -41,7 +42,7 @@ export default function FilingTimeline({
 
             try { 
                 const response = await fetch(
-                    `http://localhost:8000/stock/${ticker}/events`
+                    `${API_BASE_URL}/stock/${ticker}/events`
                 );
 
                 const data = await response.json();

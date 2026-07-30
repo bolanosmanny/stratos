@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 type NewsArticle = { 
     title: string;
@@ -58,7 +59,7 @@ export default function StockNews({
 
             try { 
                 const response = await fetch(
-                    `http://localhost:8000/stock/${ticker}/news?company_name=${encodeURIComponent(companyName)}`
+                    `${API_BASE_URL}/stock/${ticker}/news?company_name=${encodeURIComponent(companyName)}`
                 );
 
                 const data = await response.json();

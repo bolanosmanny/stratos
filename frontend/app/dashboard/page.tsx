@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
+import { API_BASE_URL } from "@/lib/api";
 
 type StockData = {
     symbol: string;
@@ -121,7 +122,7 @@ export default function Dashboard() {
 
         try { 
             const res = await fetch(
-                `http://localhost:8000/stock/${symbol}/history?period=${selectedPeriod}`
+                `${API_BASE_URL}/stock/${symbol}/history?period=${selectedPeriod}`
             );
             const data = await res.json();
             
@@ -151,7 +152,7 @@ export default function Dashboard() {
 
         try { 
             const res = await fetch(
-                `http://localhost:8000/stock/${ticker.trim().toUpperCase()}`
+                `${API_BASE_URL}/stock/${ticker.trim().toUpperCase()}`
             );
             const data = await res.json();
 

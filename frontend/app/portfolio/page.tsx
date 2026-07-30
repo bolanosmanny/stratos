@@ -12,8 +12,8 @@ import {
 } from "recharts"
 
 import { supabase } from "@/lib/supabaseClient";
-
 import AuthGuard from "@/components/AuthGuard";
+import { API_BASE_URL } from "@/lib/api";
 
 type Holding = {
     id: number;
@@ -73,7 +73,7 @@ export default function PortfolioPage() {
 
         try { 
             const response = await fetch(
-                `http://localhost:8000/stocks/quotes?symbols=${symbols.join(",")}`
+                `${API_BASE_URL}/stocks/quotes?symbols=${symbols.join(",")}`
             );
             const data: Quote[] = await response.json();
 
@@ -110,7 +110,7 @@ export default function PortfolioPage() {
             const historyResponses = await Promise.all(
                 symbols.map(async (symbol) => { 
                     const response = await fetch(
-                        `http://localhost:8000/stock/${symbol}/history?period=${selectedPeriod}`
+                        `${API_BASE_URL}/stock/${symbol}/history?period=${selectedPeriod}`
                     );
 
                     const data: { history: HistoryPoint[] } = 

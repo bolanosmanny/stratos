@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import AuthGuard from "@/components/AuthGuard";
 import SiteNav from "@/components/SiteNav";
+import { API_BASE_URL } from "@/lib/api";
 
 type WatchlistItem = {
   id: number;
@@ -125,7 +126,7 @@ export default function Home() {
     }
 
     fetch(
-      `http://localhost:8000/stocks/quotes?symbols=${symbols?.join(",")}`
+      `${API_BASE_URL}/stocks/quotes?symbols=${symbols?.join(",")}`
     )
       .then(async (response) => { 
         const data: Quote[] = await response.json();

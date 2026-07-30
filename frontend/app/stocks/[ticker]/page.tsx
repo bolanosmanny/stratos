@@ -15,6 +15,7 @@ import {
 import StockNews from "@/components/StockNews";
 import FilingTimeline from "@/components/FilingTimeline";
 import SiteNav from "@/components/SiteNav";
+import { API_BASE_URL } from "@/lib/api";
 
 type StockData = {
   symbol: string;
@@ -123,7 +124,7 @@ export default function StockPage() {
 
       try {
         const quoteResponse = await fetch(
-          `http://localhost:8000/stock/${ticker}`
+          `${API_BASE_URL}/stock/${ticker}`
         );
         const quoteData = await quoteResponse.json();
 
@@ -142,9 +143,9 @@ export default function StockPage() {
           fundamentalsResponse,
           financialHealthResponse,
         ] = await Promise.all([
-          fetch(`http://localhost:8000/stock/${ticker}/profile`),
-          fetch(`http://localhost:8000/stock/${ticker}/fundamentals`),
-          fetch(`http://localhost:8000/stock/${ticker}/financial-health`),
+          fetch(`${API_BASE_URL}/stock/${ticker}/profile`),
+          fetch(`${API_BASE_URL}/stock/${ticker}/fundamentals`),
+          fetch(`${API_BASE_URL}/stock/${ticker}/financial-health`),
         ]);
 
         if (profileResponse.ok) {
@@ -183,7 +184,7 @@ export default function StockPage() {
 
       try {
         const historyResponse = await fetch(
-          `http://localhost:8000/stock/${ticker}/history?period=${period}`
+          `${API_BASE_URL}/stock/${ticker}/history?period=${period}`
         );
         const historyData = await historyResponse.json();
 
