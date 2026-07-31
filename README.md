@@ -116,7 +116,7 @@ stratos/
 
 ## Demo
 
-Add your unlisted demo-video link here after upload.
+(https://youtu.be/n_wqMeqYYAo)
 
 ## Disclaimer
 
