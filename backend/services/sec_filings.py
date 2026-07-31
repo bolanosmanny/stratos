@@ -162,16 +162,41 @@ def chunk_text(
     start = 0
 
     while start < len(text):
-        end = start + chunk_size
-        chunks.append(text[start:end])
+        proposed_end = min(start + chunk_size, len(text))
+        end = proposed_end
+
+        if proposed_end < len(text):
+            sentence_end = max(
+                text.rfind(". ", start, proposed_end),
+                text.rfind("? ", start, proposed_end),
+                text.rfind("! ", start, proposed_end),
+            )
+            word_end = text.rfind(" ", start, proposed_end)
+
+            if sentence_end >= start + (chunk_size // 2):
+                end = sentence_end + 1
+            elif word_end > start:
+                end = word_end
+
+        chunk = text[start:end].strip()
+
+        if chunk:
+            chunks.append(chunk)
 
         if end >= len(text):
             break
 
-        start = end - overlap
+        next_start = max(end - overlap, start + 1)
+
+        while next_start < len(text) and not text[next_start].isspace():
+            next_start += 1
+
+        while next_start < len(text) and text[next_start].isspace():
+            next_start += 1
+
+        start = next_start
 
     return chunks
-
 
 def get_latest_10k_sections(
         ticker: str,
