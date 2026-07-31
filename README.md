@@ -116,7 +116,7 @@ stratos/
 
 ## Demo
 
-(https://youtu.be/n_wqMeqYYAo)
+[Watch the Stratos product demo on YouTube](https://youtu.be/n_wqMeqYYAo)
 
 ## Disclaimer
 
