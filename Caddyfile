@@ -1,4 +1,4 @@
-startos-fin-app.duckdns.org { 
+stratos-fin-app.duckdns.org { 
     encode zstd gzip
 
     @api path /api/*
