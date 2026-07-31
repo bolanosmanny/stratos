@@ -2,7 +2,7 @@
 
 **AI-powered financial research platform for investigating public companies with market data, portfolio tools, and source-cited SEC filing analysis.**
 
-> Stratos is built for research and education—not stock-price prediction or investment advice.
+> Stratos is built for research and education not stock-price prediction or investment advice.
 
 ## What it does
 
