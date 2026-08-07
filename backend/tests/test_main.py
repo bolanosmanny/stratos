@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from starlette.requests import Request
 from fastapi import FastAPI
 from routers.health import create_health_router
+import routers.stock_context as stock_context
+from routers.stock_context import create_stock_context_router
 
 
 import main
@@ -50,9 +52,6 @@ def test_research_rate_limit_blocks_extra_requests(monkeypatch):
     assert error.value.status_code == 429   
 
 def test_stock_news_uses_cache(monkeypatch):
-    main.NEWS_CACHE.clear()
-    monkeypatch.setattr(main, "ALPHA_VANTAGE_API_KEY", "test_key")
-
     provider_calls = []
 
     def fake_get_company_news(symbol, api_key, company_name):
@@ -60,24 +59,35 @@ def test_stock_news_uses_cache(monkeypatch):
         return [{"title": "Test article"}]
 
     monkeypatch.setattr(
-        main,
+        stock_context,
         "get_company_news",
-        fake_get_company_news
+        fake_get_company_news,
     )
 
-    first_response = client.get(
+    test_app = FastAPI()
+    test_app.include_router(
+        create_stock_context_router(
+            "test-key",
+            {},
+        )
+    )
+    test_client = TestClient(test_app)
+
+    first_response = test_client.get(
         "/stock/aapl/news",
         params={"company_name": "Apple Inc."},
     )
-    second_response = client.get(
-        "/stock/aapl/news",
+    second_response = test_client.get(
+        "/stock/AAPL/news",
         params={"company_name": "Apple Inc."},
     )
 
     assert first_response.status_code == 200
     assert second_response.status_code == 200
     assert len(provider_calls) == 1
-    assert second_response.json() ["articles"] == [{"title": "Test article"}]
+    assert second_response.json()["articles"] == [
+        {"title": "Test article"}
+    ]
 
 def test_production_ingestion_requires_admin_token(monkeypatch):
     monkeypatch.setattr(main, "APP_ENV", "production")
@@ -86,7 +96,7 @@ def test_production_ingestion_requires_admin_token(monkeypatch):
     response = client.post("/research/ingest/AAPL")
 
     assert response.status_code == 403
-    assert response.json() ["detail"] == (
+    assert response.json()["detail"] == (
         "Ingestion is disabled for public requests"
     )
 

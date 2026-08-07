@@ -15,11 +15,10 @@ from services.research_index import (
 )
 from services.retrieval import retrieve_relevant_chunks
 from services.research_answer import answer_research_question
-from services.news import get_company_news
 import time
-from services.filing_timeline import get_company_filing_events
 import logging
 from routers.health import create_health_router
+from routers.stock_context import create_stock_context_router
 
 load_dotenv()
 
@@ -181,51 +180,12 @@ def read_root():
 
 app.include_router(create_health_router(supabase))
 
-@app.get("/stock/{ticker}/news")
-def get_stock_news(
-    ticker: str,
-    company_name: str = Query(default=""),
-):
-    if not ALPHA_VANTAGE_API_KEY:
-        raise HTTPException(
-            status_code = 500,
-            detail = "ALPHA_VANTAGE_API_KEY is not configured.",
-        )
-
-    symbol = ticker.strip().upper()
-    cached_news = NEWS_CACHE.get(symbol)
-    now = time.time()
-
-    if cached_news and now - cached_news[0] < NEWS_CACHE_TTL_SECONDS:
-        return { 
-            "symbol": symbol,
-            "articles": cached_news[1],
-        }
-
-    articles = get_company_news(
-        symbol,
+app.include_router(
+    create_stock_context_router(
         ALPHA_VANTAGE_API_KEY,
-        company_name,
+        SEC_HEADERS,
     )
-
-    NEWS_CACHE[symbol] = (now, articles)
-
-    return { 
-        "symbol": symbol,
-        "articles": articles,
-    }
-
-@app.get("/stock/{ticker}/events")
-def get_stock_events(ticker: str):
-    symbol = ticker.strip().upper()
-
-    return { 
-        "symbol": symbol,
-        "events": get_company_filing_events(
-            symbol,
-            SEC_HEADERS,
-        ),
-    }
+)
 
 @app.get("/stock/{ticker}")
 def get_stock(ticker: str):
