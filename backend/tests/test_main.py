@@ -8,7 +8,7 @@ import routers.stock_context as stock_context
 from routers.stock_context import create_stock_context_router
 import routers.research as research_router
 from routers.research import create_research_router
-
+from services.fmp import check_fmp_response
 import main
 
 client = TestClient(main.app)
@@ -24,7 +24,7 @@ def test_fmp_rate_limit_returns_clear_error():
     response.status_code = 429
 
     with pytest.raises(HTTPException) as error:
-        main.check_fmp_response(response)
+        check_fmp_response(response)
 
     assert error.value.status_code == 429
     assert error.value.detail == (

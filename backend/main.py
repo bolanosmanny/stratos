@@ -1,15 +1,15 @@
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
 from dotenv import load_dotenv
-from datetime import date, timedelta
 from supabase import Client, create_client
 import time
 import logging
 from routers.health import create_health_router
 from routers.stock_context import create_stock_context_router
 from routers.research import create_research_router
+from routers.market_data import create_market_data_router
 
 load_dotenv()
 
@@ -96,9 +96,6 @@ FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
 
-QUOTE_CACHE: dict[str, tuple[float, dict]] = {}
-QUOTE_CACHE_TTL_SECONDS = 60
-
 APP_ENV = os.getenv("APP_ENV", "development").lower()
 INGEST_ADMIN_TOKEN = os.getenv("INGEST_ADMIN_TOKEN", "")
 
@@ -106,15 +103,6 @@ RESEARCH_RATE_LIMIT = int(os.getenv("RESEARCH_RATE_LIMIT", "6"))
 RESEARCH_RATE_WINDOW_SECONDS = int(
     os.getenv("RESEARCH_RATE_WINDOW_SECONDS", "600")
 )
-
-def check_fmp_response(response: requests.Response) -> None:
-    if response.status_code == 429:
-        raise HTTPException(
-            status_code=429,
-            detail="Market-data API limit reached. Please try again later.",
-        )
-
-    response.raise_for_status()
 
 @app.get("/")
 def read_root():
@@ -129,166 +117,10 @@ app.include_router(
     )
 )
 
-@app.get("/stock/{ticker}")
-def get_stock(ticker: str):
-    if not FMP_API_KEY:
-        raise HTTPException(
-            status_code=500,
-            detail="FMP_API_KEY is not configured.",
-        )
-
-    symbol = ticker.strip().upper()
-
-    try:
-        response = requests.get(
-            "https://financialmodelingprep.com/stable/quote",
-            params={
-                "symbol": symbol,
-                "apikey": FMP_API_KEY,
-            },
-            timeout=15,
-        )
-
-        check_fmp_response(response)
-        return response.json()
-
-    except HTTPException:
-        raise
-    except (requests.RequestException, ValueError):
-        raise HTTPException(
-            status_code=502,
-            detail="Unable to retrieve stock quote data.",
-        )
-
-@app.get("/stocks/quotes")
-def get_stock_quotes(
-    symbols: str = Query(min_length=1),
-):
-    if not FMP_API_KEY:
-        raise HTTPException(
-            status_code=500,
-            detail="FMP_API_KEY is not configured.",
-        )
-
-    ticker_list = list(
-        dict.fromkeys(
-            symbol.strip().upper()
-            for symbol in symbols.split(",")
-            if symbol.strip()
-        )
-    )
-
-    if not ticker_list:
-        raise HTTPException(
-            status_code=400,
-            detail="Provide at least one ticker symbol.",
-        )
-
-    if len(ticker_list) > 50:
-        raise HTTPException(
-            status_code=400,
-            detail="Maximum of 50 ticker symbols allowed.",
-        )
-
-    quotes = []
-    now = time.time()
-
-    for symbol in ticker_list:
-        cached_quote = QUOTE_CACHE.get(symbol)
-
-        if cached_quote and now - cached_quote[0] < QUOTE_CACHE_TTL_SECONDS:
-            quotes.append(cached_quote[1])
-            continue
-
-        try: 
-            response = requests.get(
-                "https://financialmodelingprep.com/stable/quote",
-                params={
-                    "symbol": symbol,
-                    "apikey": FMP_API_KEY,
-                },
-                timeout=15,
-            )
-
-            check_fmp_response(response)
-            quote_data = response.json()
-
-            if isinstance(quote_data, list) and quote_data:
-                quote = quote_data[0]
-                QUOTE_CACHE[symbol] = (now, quote)
-                quotes.append(quote)
-
-        except HTTPException:
-            raise
-        except (requests.RequestException, ValueError):
-            raise HTTPException(
-                status_code=502,
-                detail="Unable to retrieve stock quote.",
-            )
-
-    return quotes
-
-PERIOD_DAYS = {
-    "1M": 30,
-    "6M": 183,
-    "1Y": 365,
-    "5Y": 365 * 5,
-}
-
-@app.get("/stock/{ticker}/history")
-def get_stock_history(
-    ticker: str,
-    period: str = Query(default="1Y", pattern="^(1M|6M|1Y|5Y)$"),
-):
-    if not FMP_API_KEY:
-        raise HTTPException(status_code=500, detail="FMP_API_KEY is not configured.")
-    
-    symbol = ticker.strip().upper()
-    start_date = date.today() - timedelta(days=PERIOD_DAYS[period])
-
-    try:
-        response = requests.get(
-            "https://financialmodelingprep.com/stable/historical-price-eod/full",
-            params={
-                "symbol": symbol,
-                "from": start_date.isoformat(),
-                "to": date.today().isoformat(),
-                "apikey": FMP_API_KEY,
-            },
-            timeout=15,
-        )
-        check_fmp_response(response)
-        data = response.json()
-    except requests.RequestException:
-        raise HTTPException(
-            status_code=502,
-            detail="Unable to retrieve historical market data.",
-        )
-    
-    if not isinstance(data, list) or len(data) == 0:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No historical data found for {symbol}.",
-            )
-    
-    history = [ 
-        {
-            "date": item["date"],
-            "close": item["close"],
-            "high": item["high"],
-            "low": item["low"],
-            "volume": item["volume"],
-        }
-
-        for item in reversed(data)
-        if all(key in item for key in ["date", "close", "high", "low", "volume"])
-    ]
-
-    return {
-        "symbol": symbol,
-        "period": period,
-        "history": history,
-    }
+app.include_router(
+    create_market_data_router(
+        FMP_API_KEY)
+)
 
 @app.get("/stock/{ticker}/profile")
 def get_company_profile(ticker: str):
