@@ -3,31 +3,31 @@ from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
 from dotenv import load_dotenv
-
 from datetime import date, timedelta
 from collections import defaultdict, deque
 from secrets import compare_digest
-
 from pydantic import BaseModel
-
 from supabase import Client, create_client
-
 from services.research_index import (
     index_latest_10k_sections,
     index_latest_10q_sections,
     index_latest_earnings_release_sections,
 )
 from services.retrieval import retrieve_relevant_chunks
-
 from services.research_answer import answer_research_question
-
 from services.news import get_company_news
-
 import time
-
 from services.filing_timeline import get_company_filing_events
+import logging
 
 load_dotenv()
+
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger("stratos.api")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
@@ -67,6 +67,32 @@ FRONTEND_ORIGINS = [
 ]
 
 app = FastAPI()
+
+@app.middleware("http")
+async def log_request_timing(request: Request, call_next):
+    started_at = time.perf_counter()
+
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception(
+            "request_failed method=%s path=%s",
+            request.method,
+            request.url.path,
+        )
+        raise
+
+    duration_ms = (time.perf_counter() - started_at) * 1000
+
+    logger.info(
+        "request_completed method=%s path=%s status=%s duration_ms=%.1f",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -151,6 +177,31 @@ def check_fmp_response(response: requests.Response) -> None:
 @app.get("/")
 def read_root():
     return {"message": "App is running"}
+
+@app.get("/health")
+def read_health():
+    try:
+        (
+            supabase.table("document_chunks")
+            .select("id")
+            .limit(1)
+            .execute()
+        )
+
+        return {
+            "status": "healthy",
+            "dependencies": {
+                "supabase": "connected",
+            },
+        }
+
+    except Exception:
+        logger.exception("health_check_failed dependency=supabase")
+
+        raise HTTPException(
+            status_code=503,
+            detail="Supabase dependency is unavailable.",
+        )
 
 @app.get("/stock/{ticker}/news")
 def get_stock_news(

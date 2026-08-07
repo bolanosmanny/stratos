@@ -86,3 +86,30 @@ def test_production_ingestion_requires_admin_token(monkeypatch):
     assert response.json() ["detail"] == (
         "Ingestion is disabled for public requests"
     )
+
+def test_health_reports_supabase_connection(monkeypatch):
+    class FakeQuery:
+        def select(self, *args, **kwargs):
+            return self
+
+        def limit(self, _count):
+            return self
+
+        def execute(self):
+            return None
+
+    class FakeSupabase:
+        def table(self, _table_name):
+            return FakeQuery()
+
+    monkeypatch.setattr(main, "supabase", FakeSupabase())
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "healthy",
+        "dependencies": { 
+            "supabase": "connected",
+        },
+    }
