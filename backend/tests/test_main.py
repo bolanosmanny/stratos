@@ -3,6 +3,9 @@ import requests
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from starlette.requests import Request
+from fastapi import FastAPI
+from routers.health import create_health_router
+
 
 import main
 
@@ -87,9 +90,9 @@ def test_production_ingestion_requires_admin_token(monkeypatch):
         "Ingestion is disabled for public requests"
     )
 
-def test_health_reports_supabase_connection(monkeypatch):
+def test_health_reports_supabase_connection():
     class FakeQuery:
-        def select(self, *args, **kwargs):
+        def select(self, *_args, **_kwargs):
             return self
 
         def limit(self, _count):
@@ -102,14 +105,16 @@ def test_health_reports_supabase_connection(monkeypatch):
         def table(self, _table_name):
             return FakeQuery()
 
-    monkeypatch.setattr(main, "supabase", FakeSupabase())
+    test_app = FastAPI()
+    test_app.include_router(create_health_router(FakeSupabase()))
 
-    response = client.get("/health")
+    response = TestClient(test_app).get("/health")
 
     assert response.status_code == 200
     assert response.json() == {
         "status": "healthy",
-        "dependencies": { 
+        "dependencies": {
             "supabase": "connected",
         },
     }
+    

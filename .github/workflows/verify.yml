@@ -62,4 +62,4 @@ jobs:
         run: python -m pytest
 
       - name: Compile backend source
-        run: python -m compileall main.py services scripts 
+        run: python -m compileall main.py routers services scripts 

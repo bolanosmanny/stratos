@@ -19,6 +19,7 @@ from services.news import get_company_news
 import time
 from services.filing_timeline import get_company_filing_events
 import logging
+from routers.health import create_health_router
 
 load_dotenv()
 
@@ -178,30 +179,7 @@ def check_fmp_response(response: requests.Response) -> None:
 def read_root():
     return {"message": "App is running"}
 
-@app.get("/health")
-def read_health():
-    try:
-        (
-            supabase.table("document_chunks")
-            .select("id")
-            .limit(1)
-            .execute()
-        )
-
-        return {
-            "status": "healthy",
-            "dependencies": {
-                "supabase": "connected",
-            },
-        }
-
-    except Exception:
-        logger.exception("health_check_failed dependency=supabase")
-
-        raise HTTPException(
-            status_code=503,
-            detail="Supabase dependency is unavailable.",
-        )
+app.include_router(create_health_router(supabase))
 
 @app.get("/stock/{ticker}/news")
 def get_stock_news(
