@@ -19,7 +19,7 @@ def answer_research_question(
     if not matches:
         return { 
             "answer": (
-                f"Spary could not find indexed SEC filing material for "
+                f"Sparky could not find indexed SEC filing material for "
                 f"{ticker.upper()} yet."
             ),
             "citations": [],
@@ -42,8 +42,8 @@ def answer_research_question(
                 "Answer only from the provided SEC filing excerpts. "
                 "Do not use outside knowledge, make predictions, or give investment advice. "
                 "State dates, fiscal periods, and numbers only when they appear explicitly in an excerpt; never infer them. "
-                "Do not volunteer a fiscal year-end date unless the specifically asks for it. "
-                "If the user asks about a year, repeat only that yeaer and do not infer its ending date. "
+                "Do not volunteer a fiscal year-end date unless the user specifically asks for it. "
+                "If the user asks about a year, repeat only that year and do not infer its ending date. "
                 "Keep the answer concise. Every factual sentence and every bullet point must end with one or more matching source labels, such as [1] or [2]. "
                 "Never provide an uncited factual claim."
             ),
@@ -51,7 +51,7 @@ def answer_research_question(
         {
             "role": "user",
             "content": (
-                f"Compan ticker: {ticker.upper()}\n"
+                f"Company ticker: {ticker.upper()}\n"
                 f"Question: {question}\n\n"
                 f"SEC filing excerpts:\n{source_context}"
             ),
