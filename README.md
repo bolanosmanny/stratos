@@ -27,6 +27,33 @@ flowchart LR
 
 The indexer covers a curated research universe of large public companies. It retrieves recent 10-K, 10-Q, and earnings-release material, extracts risk factors and management discussion sections, embeds the chunks, and stores them in pgvector for retrieval.
 
+## System design
+
+```mermaid
+flowchart LR
+    U["User browser"] --> F["Next.js frontend"]
+    F --> S["Supabase Auth + PostgreSQL"]
+    F --> A["FastAPI API"]
+    A --> M["Market + news APIs"]
+    A --> E["SEC EDGAR"]
+    A --> V["pgvector retrieval"]
+    V --> L["Qwen via Ollama"]
+    A --> C["Caddy HTTPS reverse proxy"]
+```
+
+- Supabase Auth and Row Level Security keep each user’s profile, watchlists, holdings, and research history isolated.
+- FastAPI separates market-data, company-data, research, health, and filing-context routes from external provider logic.
+- pgvector stores filing embeddings and supports semantic retrieval before Qwen generates a citation-backed answer.
+- Caddy terminates HTTPS and keeps the frontend and API services private behind the reverse proxy.
+- Docker Compose runs the frontend, API, Ollama, and proxy as separate services.
+
+## Known limitations
+
+- Quote/news caching and research rate limiting are in-process, so they reset after a restart and are designed for a single API instance.
+- The current RAG corpus is limited to the indexed research universe and supported SEC filing sections.
+- Local Ollama inference can have variable response time, especially while a model is loading.
+- Stratos is a research and education tool, not investment advice or a price-prediction service.
+
 ## Tech stack
 
 | Area | Technology |
@@ -47,7 +74,7 @@ Stratos was deployed as Docker services on AWS EC2 behind Caddy with HTTPS enabl
 - SEC-ingestion routes require a server-side admin token in production.
 - Research requests are rate-limited in the API process.
 - Environment variables and service-role credentials are kept out of version control.
-- GitHub Actions runs backend behavior tests, frontend lint/build checks, and a Playwright protected-route browser smoke test on pushes
+- GitHub Actions runs backend behavior tests, frontend lint/build checks, and a Playwright protected-route browser smoke test on pushes.
 
 The public EC2 demo instance is stopped when not in use to control cost. Starting it again may require updating the DuckDNS record with the instance’s new public IP.
 
