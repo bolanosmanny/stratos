@@ -4,8 +4,8 @@ create table public.research_history (
     ticker text not null check (ticker = upper(ticker)),
     question text not null,
     answer text not null,
-    citations jsonb not null default '[]'::jsonb,,
-    created_at timestampz not null default now()
+    citations jsonb not null default '[]'::jsonb,
+    created_at timestamptz not null default now()
 );
 
 create index research_history_user_created_at_idx
