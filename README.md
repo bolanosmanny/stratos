@@ -34,25 +34,26 @@ flowchart LR
     U["User browser"] --> F["Next.js frontend"]
     F --> S["Supabase Auth + PostgreSQL"]
     F --> A["FastAPI API"]
-    A --> M["Market + news APIs"]
+    A --> M["Market and news providers"]
     A --> E["SEC EDGAR"]
-    A --> V["pgvector retrieval"]
+    A --> V["PostgreSQL + pgvector"]
     V --> L["Qwen via Ollama"]
-    A --> C["Caddy HTTPS reverse proxy"]
+    C["Caddy HTTPS proxy"] --> F
+    C --> A
 ```
 
-- Supabase Auth and Row Level Security keep each user’s profile, watchlists, holdings, and research history isolated.
-- FastAPI separates market-data, company-data, research, health, and filing-context routes from external provider logic.
-- pgvector stores filing embeddings and supports semantic retrieval before Qwen generates a citation-backed answer.
-- Caddy terminates HTTPS and keeps the frontend and API services private behind the reverse proxy.
-- Docker Compose runs the frontend, API, Ollama, and proxy as separate services.
+- Supabase Auth and Row Level Security isolate each user’s profiles, watchlists, portfolio holdings, and research history.
+- FastAPI handles market data, SEC ingestion, semantic retrieval, and research-answer generation while keeping provider credentials server-side.
+- pgvector stores SEC filing embeddings and retrieves the most relevant chunks before Qwen produces source-cited answers.
+- Caddy terminates HTTPS and routes public traffic to containerized frontend and API services.
+- Docker Compose separates the frontend, API, Ollama, and reverse-proxy services while keeping internal service communication private.
 
 ## Known limitations
 
-- Quote/news caching and research rate limiting are in-process, so they reset after a restart and are designed for a single API instance.
-- The current RAG corpus is limited to the indexed research universe and supported SEC filing sections.
-- Local Ollama inference can have variable response time, especially while a model is loading.
-- Stratos is a research and education tool, not investment advice or a price-prediction service.
+- Quote/news caching and research rate limiting are in-process controls designed for a single API instance; they reset after a restart and are not shared across multiple instances.
+- The research corpus is limited to the supported SEC filing sections and the indexed company universe.
+- Local Ollama response time varies by model size, available machine resources, and whether the model is already loaded.
+- Stratos supports research and education, not investment advice, trading recommendations, or stock-price prediction.
 
 ## Tech stack
 
@@ -156,6 +157,20 @@ npm run test:e2e
 ```
 
 GitHub Actions runs the credential-free Playwright protected-route smoke test on every push. Authenticated browser flows run locally to avoid storing Supabase credentials in CI.
+
+### Local validation snapshot
+
+Representative local measurements recorded on August 7, 2026:
+
+| Check | Result |
+| --- | --- |
+| Backend behavior suite | 11 tests in 3.30 s |
+| Authenticated browser suite | 4 tests in 10.83 s |
+| Continuous integration | 3 GitHub Actions verification jobs |
+| Quote endpoint | 111 ms median across 5 AAPL requests, including the market-data provider call |
+| AAPL 10-K ingestion | 80 chunks in 6.61 s on an initial run; 80 chunks in 2.54 s on an immediate repeat |
+
+The ingestion measurements include SEC retrieval, section extraction, embedding generation, and pgvector upsert work. Results vary with network conditions and whether the embedding model is already loaded.
 
 ## Project structure
 
