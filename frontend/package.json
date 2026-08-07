@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",
@@ -16,10 +17,12 @@
     "recharts": "^3.10.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
