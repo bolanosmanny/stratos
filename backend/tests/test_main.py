@@ -2,12 +2,12 @@ import pytest
 import requests
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from starlette.requests import Request
 from fastapi import FastAPI
 from routers.health import create_health_router
 import routers.stock_context as stock_context
 from routers.stock_context import create_stock_context_router
-
+import routers.research as research_router
+from routers.research import create_research_router
 
 import main
 
@@ -32,24 +32,46 @@ def test_fmp_rate_limit_returns_clear_error():
     )
 
 def test_research_rate_limit_blocks_extra_requests(monkeypatch):
-    main.RESEARCH_REQUESTS.clear()
-    monkeypatch.setattr(main, "RESEARCH_RATE_LIMIT", 2)
-
-    request = Request(
-        {
-            "type": "http",
-            "client": ("127.0.0.1", 12345),
-            "headers": [],
-        }
+    monkeypatch.setattr(
+        research_router,
+        "answer_research_question",
+        lambda *_args: {
+            "answer": "Test answer [1].",
+            "citations": [],
+        },
     )
 
-    main.enforce_research_rate_limit(request)
-    main.enforce_research_rate_limit(request)
+    test_app = FastAPI()
+    test_app.include_router(
+        create_research_router(
+            object(),
+            {},
+            "http://ollama:11434",
+            "qwen2.5:3b",
+            "development",
+            "",
+            2,
+            600,
+        )
+    )
+    test_client = TestClient(test_app)
 
-    with pytest.raises(HTTPException) as error:
-        main.enforce_research_rate_limit(request)
+    first_response = test_client.post(
+        "/research",
+        json={"ticker": "AAPL", "question": "What are the risks?"},
+    )
+    second_response = test_client.post(
+        "/research",
+        json={"ticker": "AAPL", "question": "What are the risks?"},
+    )
+    third_response = test_client.post(
+        "/research",
+        json={"ticker": "AAPL", "question": "What are the risks?"},
+    )
 
-    assert error.value.status_code == 429   
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert third_response.status_code == 429
 
 def test_stock_news_uses_cache(monkeypatch):
     provider_calls = []
@@ -89,11 +111,23 @@ def test_stock_news_uses_cache(monkeypatch):
         {"title": "Test article"}
     ]
 
-def test_production_ingestion_requires_admin_token(monkeypatch):
-    monkeypatch.setattr(main, "APP_ENV", "production")
-    monkeypatch.setattr(main, "INGEST_ADMIN_TOKEN", "test-admin-token")
+def test_production_ingestion_requires_admin_token():
+    test_app = FastAPI()
+    test_app.include_router(
+        create_research_router(
+            object(),
+            {},
+            "http://ollama:11434",
+            "qwen2.5:3b",
+            "production",
+            "test-admin-token",
+            6,
+            600,
+        )
+    )
+    test_client = TestClient(test_app)
 
-    response = client.post("/research/ingest/AAPL")
+    response = test_client.post("/research/ingest/AAPL")
 
     assert response.status_code == 403
     assert response.json()["detail"] == (

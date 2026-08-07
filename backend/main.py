@@ -1,24 +1,15 @@
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os 
 import requests
 from dotenv import load_dotenv
 from datetime import date, timedelta
-from collections import defaultdict, deque
-from secrets import compare_digest
-from pydantic import BaseModel
 from supabase import Client, create_client
-from services.research_index import (
-    index_latest_10k_sections,
-    index_latest_10q_sections,
-    index_latest_earnings_release_sections,
-)
-from services.retrieval import retrieve_relevant_chunks
-from services.research_answer import answer_research_question
 import time
 import logging
 from routers.health import create_health_router
 from routers.stock_context import create_stock_context_router
+from routers.research import create_research_router
 
 load_dotenv()
 
@@ -104,8 +95,6 @@ app.add_middleware(
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
-NEWS_CACHE: dict[str, tuple[float, list[dict]]] = {}
-NEWS_CACHE_TTL_SECONDS = 900 # 15 minutes
 
 QUOTE_CACHE: dict[str, tuple[float, dict]] = {}
 QUOTE_CACHE_TTL_SECONDS = 60
@@ -117,53 +106,6 @@ RESEARCH_RATE_LIMIT = int(os.getenv("RESEARCH_RATE_LIMIT", "6"))
 RESEARCH_RATE_WINDOW_SECONDS = int(
     os.getenv("RESEARCH_RATE_WINDOW_SECONDS", "600")
 )
-RESEARCH_REQUESTS: dict[str, deque[float]] = defaultdict(deque)
-
-def get_client_key(request: Request) -> str:
-    forwarded_for = request.headers.get("x-forwarded-for")
-
-    if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
-
-    if request.client:
-        return request.client.host
-
-    return "unknown"
-
-def enforce_research_rate_limit(request: Request) -> None:
-    client_key = get_client_key(request)
-    now = time.monotonic()
-    timestamps = RESEARCH_REQUESTS[client_key]
-
-    while ( 
-        timestamps
-        and now - timestamps[0] > RESEARCH_RATE_WINDOW_SECONDS
-    ):
-        timestamps.popleft()
-
-    if len(timestamps) >= RESEARCH_RATE_LIMIT:
-        raise HTTPException(
-            status_code=429,
-            detail="Research request rate limit exceeded. Please try again later.",
-        )
-
-    timestamps.append(now)
-
-def require_ingest_admin_token(
-        x_ingest_token: str | None = Header(default=None),     
-) -> None:
-    if APP_ENV != "production":
-        return
-
-    if (
-        not INGEST_ADMIN_TOKEN
-        or not x_ingest_token
-        or not compare_digest(x_ingest_token, INGEST_ADMIN_TOKEN)
-    ):
-        raise HTTPException(
-            status_code=403,
-            detail="Ingestion is disabled for public requests",
-        )
 
 def check_fmp_response(response: requests.Response) -> None:
     if response.status_code == 429:
@@ -561,131 +503,15 @@ def get_financial_health(ticker: str):
         "freeCashFlow": free_cash_flow,
     }
 
-class ResearchRequest(BaseModel):
-    ticker: str
-    question: str
-
-@app.post("/research")
-def research_company(
-    request: ResearchRequest,
-    http_request: Request,
-):
-    enforce_research_rate_limit(http_request)
-
-    ticker = request.ticker.strip().upper()
-    question = request.question.strip()
-
-    if not ticker:
-        raise HTTPException(
-            status_code = 400,
-            detail = "A ticker symbol is required",
-        )
-
-    if not question:
-        raise HTTPException(
-            status_code = 400,
-            detail = "A research question is required",
-        )
-
-    result = answer_research_question(
-        ticker,
-        question,
+app.include_router(
+    create_research_router(
         supabase,
+        SEC_HEADERS,
         OLLAMA_BASE_URL,
         OLLAMA_MODEL,
+        APP_ENV,
+        INGEST_ADMIN_TOKEN,
+        RESEARCH_RATE_LIMIT,
+        RESEARCH_RATE_WINDOW_SECONDS,
     )
-
-    return { 
-        "ticker": ticker,
-        "question": question,
-        "answer": result["answer"],
-        "citations": result["citations"],
-    }
-
-@app.get("/research/status")
-def research_status():
-    try:
-        response = (
-            supabase.table("document_chunks")
-            .select("id", count="exact")
-            .limit(1)
-            .execute()
-        )
-
-        return { 
-            "status": "connected",
-            "indexed_chunks": response.count or 0,
-        }
-    except Exception as error:
-        raise HTTPException(
-            status_code = 503,
-            detail = f"Supabase connection failed: {error}",
-        )
-
-@app.post("/research/ingest/{ticker}")
-def ingest_latest_10k(
-    ticker: str,
-    _: None = Depends(require_ingest_admin_token),
-):
-    
-    return index_latest_10k_sections(
-        ticker,
-        SEC_HEADERS,
-        supabase,
 )
-
-@app.post("/research/ingest-quarterly/{ticker}")
-def ingest_latest_10q(
-    ticker: str,
-    _: None = Depends(require_ingest_admin_token)
-):
-    
-    return index_latest_10q_sections(
-        ticker,
-        SEC_HEADERS,
-        supabase,
-    )
-
-@app.post("/research/ingest-earnings/{ticker}")
-def ingest_latest_earnings_release(
-    ticker: str,
-    _: None = Depends(require_ingest_admin_token)
-):
-    
-    return index_latest_earnings_release_sections(
-        ticker,
-        SEC_HEADERS,
-        supabase,
-    )
-
-@app.post("/research/retrieve")
-def retrieve_research_chunks(request: ResearchRequest):
-    ticker = request.ticker.strip().upper()
-    question = request.question.strip()
-
-    if not ticker or not question:
-        raise HTTPException(
-            status_code = 400,
-            detail = "A ticker and research question are required",
-        )
-
-    matches = retrieve_relevant_chunks(
-        ticker,
-        question,
-        supabase, 
-    )
-
-    return { 
-        "ticker": ticker,
-        "question": question,
-        "matches": [
-            {
-                "filing_type": match["filing_type"],
-                "filing_date": match["filing_date"],
-                "source_url": match["source_url"],
-                "similarity": round(match["similarity"], 3),
-                "excerpt": match["content"][:450] + "...",
-            }
-            for match in matches
-        ],
-    }
