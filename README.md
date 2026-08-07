@@ -47,7 +47,7 @@ Stratos was deployed as Docker services on AWS EC2 behind Caddy with HTTPS enabl
 - SEC-ingestion routes require a server-side admin token in production.
 - Research requests are rate-limited in the API process.
 - Environment variables and service-role credentials are kept out of version control.
-- GitHub Actions verifies backend syntax and frontend lint/build checks on pushes.
+- GitHub Actions runs backend behavior tests, frontend lint/build checks, and a Playwright protected-route browser smoke test on pushes
 
 The public EC2 demo instance is stopped when not in use to control cost. Starting it again may require updating the DuckDNS record with the instance’s new public IP.
 
@@ -100,6 +100,35 @@ cd backend
 source venv/bin/activate
 python -m scripts.index_research_universe
 ```
+
+## Testing
+
+### Backend API behavior tests
+
+```bash
+cd backend
+source venv/bin/activate
+python -m pytest
+```
+
+### Frontend quality checks
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+### Authenticated browser tests
+
+Use a local, gitignored `.env.e2e` file with your Supabase test credentials:
+
+```bash
+cd frontend
+npm run test:e2e
+```
+
+GitHub Actions runs the credential-free Playwright protected-route smoke test on every push. Authenticated browser flows run locally to avoid storing Supabase credentials in CI.
 
 ## Project structure
 
