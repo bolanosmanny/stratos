@@ -1,15 +1,17 @@
 name: Verify Stratos
 
 on:
-  push: 
+  push:
     branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   frontend:
     name: Frontend lint and build
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: frontend
@@ -17,7 +19,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -41,7 +43,6 @@ jobs:
   browser-smoke:
     name: Browser protected-route smoke test
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: frontend
@@ -73,7 +74,6 @@ jobs:
   backend:
     name: Backend tests and syntax check
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: backend
@@ -90,8 +90,19 @@ jobs:
       - name: Install backend dependencies
         run: pip install -r requirements.txt
 
-      - name: Run backend tests
-        run: python -m pytest
+      - name: Run backend tests and write JUnit report
+        run: |
+          mkdir -p reports
+          python -m pytest --junitxml=reports/junit.xml
+
+      - name: Upload JUnit report to ReproPulse
+        if: always() && vars.REPROPULSE_ENDPOINT != ''
+        uses: ./actions/upload-junit
+        with:
+          endpoint: ${{ vars.REPROPULSE_ENDPOINT }}
+          ingestion-token: ${{ secrets.REPROPULSE_INGESTION_TOKEN }}
+          report-path: backend/reports/junit.xml
+          workflow-run-id: ${{ github.run_id }}
 
       - name: Compile backend source
-        run: python -m compileall main.py routers services scripts 
+        run: python -m compileall main.py routers services scripts

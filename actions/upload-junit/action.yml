@@ -1,0 +1,47 @@
+name: ReproPulse Upload JUnit
+description: Upload a JUnit XML test report to ReproPulse
+
+inputs:
+  endpoint:
+    description: Public base URL of the ReproPulse API
+    required: true
+  ingestion-token:
+    description: ReproPulse ingestion tokne
+    required: true
+  report-path:
+    description: Path to the JUnit XML report
+    required: true
+  workflow-run-id:
+    description: GitHub Actions workflow-run ID
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Upload JUnit report
+      shell: bash
+      env:
+        REPROPULSE_ENDPOINT: ${{ inputs.endpoint }}
+        REPROPULSE_INGESTION_TOKEN: ${{ inputs.ingestion-token }}
+        REPROPULSE_REPORT_PATH: ${{ inputs.report-path }}
+        REPROPULSE_WORKFLOW_RUN_ID: ${{ inputs.workflow-run-id }}
+      run: | 
+        set -euo pipefail
+
+        if [[ ! -f "$REPROPULSE_REPORT_PATH" ]]; then
+          echo "JUnit report not found: $REPROPULSE_REPORT_PATH" >&2
+          exit 1
+        fi
+
+        upload_url="${REPROPULSE_ENDPOINT%/}/api/v1/test-reports"
+
+        curl --fail-with-body --silent --show-error \
+          --retry 3 \
+          --retry-all-errors \
+          -X POST "$upload_url" \
+          -H "Content-Type: application/xml" \
+          -H "x-repropulse-token: $REPROPULSE_INGESTION_TOKEN" \
+          -H "x-repropulse-workflow-run-id: $REPROPULSE_WORKFLOW_RUN_ID" \
+          --data-binary "@$REPROPULSE_REPORT_PATH"
+
+        echo "JUnit report uploaded to ReproPulse."
