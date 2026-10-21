@@ -1,15 +1,16 @@
 # SEC research evaluation
 
-This is a reproducible **draft** benchmark for the indexed SEC research corpus,
+This is a reproducible, source-anchored benchmark for the indexed SEC research corpus,
 not a claim that Stratos is reliable for investment decisions.
 
 `sec_questions.json` contains 50 questions: 40 answerable from an indexed
 chunk and 10 deliberately outside the indexed excerpts. Supported rows record
 the ticker, filing type/date/section, SEC source URL, exact indexed chunk ID,
 expected short answer, and a source excerpt containing that answer. The
-questions began as locally generated drafts; ambiguous table labels were
-removed or corrected after inspection. Independent semantic review of all 40
-labels is still needed before reporting public answer-accuracy figures.
+questions began as locally generated drafts. Ambiguous table labels were
+clarified and source anchors checked against the indexed chunks. One evaluator
+reviewed every saved answer and printed citation; independent blinded review
+is still needed for a strong external accuracy claim.
 
 Run from `backend/` with a populated, gitignored `.env` and local Qwen model:
 
@@ -17,7 +18,7 @@ Run from `backend/` with a populated, gitignored `.env` and local Qwen model:
 venv/bin/python -m evaluation.run_sec_eval \
   --labels evaluation/sec_questions.json \
   --retriever hybrid \
-  --output evaluation/results_final.json
+  --output evaluation/results_new.json
 ```
 
 The runner evaluates retrieval separately from generation. It compares a
@@ -36,8 +37,15 @@ check, **not general semantic entailment**. A human should audit whether each
 quote actually supports the whole claim. The guard may decline answerable
 questions when a model quote is too imprecise; report that coverage trade-off.
 
-Generate a review sheet with the actual cited chunks before calculating
-factual or citation accuracy:
+The frozen runs are `results_before.json` and `results_final.json`. Their
+review decisions are in `audit_verdicts.json`. Recount them offline without
+model or database access:
+
+```bash
+venv/bin/python -m evaluation.score_audit
+```
+
+Render the verdicts alongside the actual cited chunks:
 
 ```bash
 venv/bin/python -m evaluation.make_audit_sheet \
@@ -45,11 +53,10 @@ venv/bin/python -m evaluation.make_audit_sheet \
   --output evaluation/audit_final.md
 ```
 
-See [the measured before/after report](report.md). The review sheet is a
-template: its boxes have not been independently adjudicated. Several questions
-use relative periods (for example, "most recent") or omit a reporting scope;
-they must be rewritten before this set can support a public factual-accuracy
-claim.
+See [the measured before/after report](report.md). These judgments are a
+transparent same-evaluator audit, not an independent study. Do not silently
+update the frozen questions after tuning the implementation on them; use a
+separate validation set.
 
 For a résumé, use only stable results from a manually reviewed, frozen label
 set, and describe the exact metric (for example, "labeled-chunk hit@5"). Do

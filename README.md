@@ -144,11 +144,13 @@ python -m pytest
 ### SEC answer-quality evaluation
 
 The [evaluation protocol](backend/evaluation/README.md),
-[before/after report](backend/evaluation/report.md), and 50-question draft
-label set compare retrieval against a keyword baseline and record answer,
-citation, and unsupported-question behavior. Source-span and automatic scoring
-checks are not a substitute for independent review of the labels and cited
-answers; do not report the automatic proxies as audited factual accuracy.
+[before/after report](backend/evaluation/report.md), and frozen 50-question
+set compare retrieval with keyword search and separately review factual
+answers, citation support, and unsupported-question refusals. Exact-chunk
+Recall@5 rose from 75% to 90%, but factual-answer accuracy fell from 77.5%
+to 70% because the evidence guard refused more answerable questions. The
+recorded audit is by the same evaluator, not an independent blinded study;
+automatic proxies are not factual-accuracy measurements.
 
 ### Frontend quality checks
 

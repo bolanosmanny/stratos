@@ -1,55 +1,77 @@
-# SEC answer-quality evaluation: local before/after
+# Stratos SEC answer-quality evaluation
 
-This is a **draft, source-span-verified benchmark**, not an independently
-adjudicated factual-accuracy study. It uses the same 50 questions (40 intended
-to be answerable, 10 intentionally unsupported) against 4,224 indexed SEC
-chunks. The set spans multiple companies and 10-K, 10-Q, and 8-K earnings
-release filings. The baseline used the original vector-only research path;
-the after run used hybrid retrieval and quote/number validation. Both used
-the local Qwen 2.5 7B model and the same indexed corpus. Saved predictions
-are in [results_before.json](results_before.json) and
-[results_final.json](results_final.json).
-The original-path predictions were captured before the implementation change;
-its unsupported-refusal score was rescored from those saved answers after
-fixing the refusal detector. The after run was generated with the code on this
-branch.
+This is a local, source-anchored evaluation of the Stratos research-answer
+path. The frozen set has **50 questions** about **17 companies**: 40 answerable
+from indexed SEC filings (14 10-K, 12 10-Q, 14 8-K/earnings-release cases)
+and 10 deliberately unsupported questions. The corpus held 4,224 chunks.
+The original vector-only path and the improved hybrid/quote-checked path used
+the same questions, corpus, and local Qwen 2.5 7B model. Ambiguous draft
+questions were clarified and one mislabeled tax rate was corrected against
+the source before the results below were reconciled. Changed questions were
+rerun, not merely rescored. No production database or deployment was changed.
 
-| Automatic measure | Before | After | Interpretation |
-| --- | ---: | ---: | --- |
-| Labeled chunk in top 5, 40 intended-answerable questions | 34/40 (85%) | 39/40 (97.5%) | Strict exact-chunk hit; another useful chunk still counts as a miss. |
-| Simple keyword search, same 40 questions | 37/40 (92.5%) | 37/40 (92.5%) | Fixed comparison baseline. |
-| Expected short answer appears in response | 33/40 (82.5%) | 26/40 (65%) | String-based proxy, **not factual accuracy**; conservative refusal hurts coverage. |
-| Labeled chunk appears among cited chunks | 24/40 (60%) | 24/40 (60%) | Provenance proxy, **not citation correctness**. |
-| Unsupported question declined | 9/10 (90%) | 10/10 (100%) | Phrase-based proxy; baseline invented a confidential Meta roadmap answer. |
+| Measure | Original path | Hybrid + quote check |
+| --- | ---: | ---: |
+| Labeled SEC chunk in top 5, answerable questions | **30/40 (75%)** | **36/40 (90%)** |
+| Simple keyword-search baseline, same questions | 36/40 (90%) | 36/40 (90%) |
+| Factually correct answer to answerable question, reviewed | **31/40 (77.5%)** | **28/40 (70%)** |
+| Answerable questions refused despite available evidence | 3/40 | 11/40 |
+| Intentionally unsupported questions declined | 9/10 (90%) | 10/10 (100%) |
+| Printed citations whose **full indexed chunk** supports the answer | 30/44 (68.2%) | 31/33 (93.9%) |
+| Printed citations whose **displayed quote** supports the answer | Not comparable: old path showed truncated retrieval previews | 26/33 (78.8%) |
 
-The retrieval gain is the clearest measured improvement: vector-only fell
-below a basic keyword baseline, and reciprocal-rank fusion passed it on this
-small set. The answer layer has a real trade-off. It withheld answers when
-the model could not supply a sufficiently matching quote or introduced a
-number absent from the evidence. For example, it withheld a Netflix interest
-expense answer after the model changed the table value into a larger amount
-without a unit-bearing quote. But this cut expected-answer inclusion by seven
-questions. It should not be presented as a net answer-quality gain.
+The citation denominators cover only printed labels on substantive responses
+to answerable questions. They exclude citations attached to refusals. For a
+full-chunk citation to pass, that exact chunk—not an adjacent chunk or the
+filing as a whole—must support the answer's company, period, scope, and value.
+The higher citation precision is therefore **conditional on answering**;
+the improved path printed fewer citations because it refused more questions.
+The displayed-quote check is stricter: a correct full chunk can still show an
+incomplete quote. These manually reviewed judgments are recorded case by case
+in [audit_verdicts.json](audit_verdicts.json), rendered in
+[audit_before.md](audit_before.md) and [audit_final.md](audit_final.md), and
+recounted by `python -m evaluation.score_audit`. The same evaluator who built
+the benchmark performed the review; this is **not an independent blinded
+study**. The questions were selected from available source spans and are not
+a representative sample of all investor questions.
 
-The validator checks quotation provenance and number presence, **not
-semantic entailment**. Manual spot checks found remaining problems: one
-answer cites a passage about ExxonMobil's lower-emissions strategy without
-supporting its additional policy/technology claim (S12); one Disney answer
-attributes a franchise streaming figure to an individual film (S41); and a
-Disney depreciation question has two different valid scopes in the same
-filing (S30). Another response (S34) expands a short Superfund Act quote into
-several uncited liability claims. The Apple "most recent period" question
-(S29) is ambiguous because a later filing is also indexed. Other draft
-questions use a relative period or omit a reporting scope (S07, S14, S26).
-These make the automatic answer and
-citation proxies unsuitable for résumé claims about factual or citation
-accuracy. The [audit sheet](audit_final.md) contains every prediction and
-actual cited excerpt, but its verdict boxes are deliberately blank pending
-independent review and question revision.
+The retrieval change closes the gap to a simple keyword baseline on this
+set, but does **not** beat it. The evidence checks reduce unsupported
+citations and eliminate the one false answer to an intentionally unsupported
+question, but they are too conservative: factual-answer coverage **fell**
+from 31 to 28 of 40. The improved path also leaves seven of 33 displayed
+quotes too narrow to substantiate every detail (often the date or units).
+For example, its Microsoft response to S31 gives the wrong category even
+though its selected quote mentions the correct one. This demonstrates that
+quote provenance and number matching are **not semantic entailment**.
 
-No production deployment was changed by this evaluation. The code and
-results live on a separate local branch until reviewed. A defensible public
-claim would require freezing corrected, unambiguous questions, independently
-reviewing each label and citation, then rerunning both versions on that same
-set. Do not claim an X-to-Y improvement in factual/citation accuracy from
-these proxy figures.
+Automatic string checks are kept in the JSON files for reproducibility, not
+as factual-accuracy claims: expected-answer inclusion is 30/40 before and
+27/40 after, and citing the *labeled* chunk is 23/40 before and 24/40 after.
+Both differ from the manually reviewed measures because a correct answer
+may use equivalent wording or another supporting chunk, while a cited gold
+chunk need not support the model's actual claim.
+
+## How to reproduce and what remains
+
+The frozen labels are in [sec_questions.json](sec_questions.json), saved
+predictions in [results_before.json](results_before.json) and
+[results_final.json](results_final.json), and the two answer paths in
+[legacy_answer.py](legacy_answer.py) and
+[../services/research_answer.py](../services/research_answer.py). Run
+`python -m evaluation.score_audit` from `backend` to recompute the reviewed
+counts without model or database access. `python -m pytest -q` runs the
+code-level tests. A fresh model evaluation needs the configured SEC index and
+local Ollama model described in the [project README](../../README.md).
+
+The next engineering priority is to improve **answerable-question recall**
+without admitting unsupported claims: repair missing date/unit context in
+retrieved table chunks, then evaluate a claim-level evidence verifier on a
+separate validation set before using it here. Freeze this 50-question set for
+comparison; do not repeatedly tune to it. An independent reviewer should
+also adjudicate the labels and citation judgments before treating these
+figures as external research results. A responsible résumé claim today can
+say that exact-chunk Recall@5 went **75% → 90% on 40 source-anchored SEC
+questions** and that manually checked full-chunk citation support was
+**31/33** in the improved run. It should **not** claim improved factual
+answer accuracy or a fully solved citation-verification system.

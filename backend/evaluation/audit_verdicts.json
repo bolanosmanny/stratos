@@ -1,0 +1,65 @@
+{
+  "review_scope": "All 40 intended-answerable questions and all 10 unsupported questions in each saved run. One evaluator reviewed the model answer, its printed citation labels, the full indexed chunks, the displayed quote where available, and the verified SEC source anchor. This is not a blinded or independent audit.",
+  "rubric": {
+    "factual_accuracy": "An intended-answerable response passes only if it answers the requested company, period, scope, and value without a material wrong claim. Abstention on an answerable question fails.",
+    "chunk_citation_precision": "For each printed label in a substantive answer to an intended-answerable question, the cited indexed chunk must directly support the answer, including its period and scope. The citation is not rescued by a different retrieved chunk or by the filing as a whole.",
+    "displayed_quote_precision": "For the improved system only, the exact displayed quote must directly support the answer, including period and scope. This is stricter than full-chunk support.",
+    "unsupported_refusal": "An intentionally unsupported question passes only when the response declines to supply the unknowable answer."
+  },
+  "before": {
+    "answerable_abstentions": ["S08", "S29", "S41"],
+    "factual_errors": {
+      "S04": "Answered the 12-week 25.4% rate instead of the 36-week 24.4% rate.",
+      "S05": "Answered 2063 instead of 2058.",
+      "S22": "Listed consumer/credit-card loan balances, not loans held for sale categories.",
+      "S23": "Used the prior-year $212 million instead of 2026 $389 million.",
+      "S26": "Used Walmart U.S. 4.5% instead of Total Company 7.1%.",
+      "S30": "Attributed an Experiences-segment value to the Sports segment; correct increase is $31 million."
+    },
+    "chunk_citation_failures": {
+      "S01": [2],
+      "S04": [2],
+      "S05": [3],
+      "S06": [4],
+      "S07": [5],
+      "S14": [4],
+      "S22": [4],
+      "S23": [5],
+      "S26": [2],
+      "S30": [2, 3],
+      "S31": [3],
+      "S38": [2],
+      "S42": [1]
+    },
+    "unsupported_false_answers": {
+      "U06": "Invented a confidential Meta 2030 roadmap from general public product descriptions."
+    }
+  },
+  "after": {
+    "answerable_abstentions": ["S04", "S06", "S09", "S14", "S19", "S22", "S23", "S26", "S30", "S40", "S42"],
+    "factual_errors": {
+      "S31": "Answered an economic/market condition, not the requested government-customer segment."
+    },
+    "chunk_citation_failures": {
+      "S07": [1],
+      "S31": [4]
+    },
+    "displayed_quote_failures": {
+      "S02": [3],
+      "S07": [1],
+      "S10": [4],
+      "S12": [1],
+      "S29": [2],
+      "S31": [4],
+      "S38": [1]
+    },
+    "unsupported_false_answers": {}
+  },
+  "citation_notes": {
+    "before_S01": "The printed label points to chunk 21319; the $281 million sentence is in adjacent chunk 21320.",
+    "before_S37": "Counted as supported by the cited XBRL tag A1500NotesDue2028Member, although it is less readable than the filing table.",
+    "after_S07": "The cited chunk contains the two obligations figures but no dated header or unit declaration, so it cannot establish the requested June 2026 value on its own.",
+    "after_S31": "The selected quote says government customers, while the response says adverse economic or market conditions; the full chunk contains both phrases but the answer does not match the requested category.",
+    "after_S38": "The full chunk explicitly says December 31, 2025 and 2.8 million, but the displayed quote omits the date."
+  }
+}

@@ -16,12 +16,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client
 
+from evaluation.legacy_answer import answer_research_question_legacy
 from services.research_answer import answer_research_question
 from services.retrieval import retrieve_relevant_chunks, retrieve_relevant_chunks_hybrid
 
 
 TOKEN = re.compile(r"[a-z0-9]+")
-CITATION = re.compile(r"\[([1-5])\]")
+CITATION = re.compile(r"\[([1-5](?:\s*,\s*[1-5])*)\]")
 STOP = {"a", "an", "and", "are", "as", "at", "by", "for", "from", "how", "in", "is", "of", "on", "or", "the", "to", "was", "were", "what", "which", "with"}
 
 
@@ -87,7 +88,17 @@ def is_abstention(answer: str) -> bool:
         "does not provide", "not mentioned", "no explicit mention",
         "do not support an answer", "insufficient evidence",
         "not available in the provided", "no information regarding",
+        "not explicitly provided", "does not specifically cite",
     ))
+
+
+def cited_labels(answer: str) -> list[int]:
+    """Recognize both [1][2] and the legacy model's [1, 2] form."""
+    return sorted({
+        int(label)
+        for block in CITATION.findall(answer)
+        for label in block.split(",")
+    })
 
 
 def main() -> None:
@@ -98,9 +109,12 @@ def main() -> None:
     parser.add_argument("--ids", help="Comma-separated case IDs for a focused smoke run")
     parser.add_argument("--retrieval-only", action="store_true")
     parser.add_argument("--retriever", choices=["vector", "hybrid"], default="vector")
+    parser.add_argument("--answer-mode", choices=["legacy", "current"], default="current")
     parser.add_argument("--ollama-url", default="http://localhost:11434")
     parser.add_argument("--model", default="qwen2.5:7b")
     args = parser.parse_args()
+    if args.answer_mode == "legacy" and args.retriever != "vector":
+        parser.error("legacy answer mode requires the vector retriever")
 
     load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SECRET_KEY"])
@@ -140,20 +154,36 @@ def main() -> None:
             "answer": None,
             "cited_labels": [],
             "citation_excerpts": [],
+            "cited_source_chunks": [],
             "exact_answer_included": None,
             "cites_gold_chunk": None,
             "abstained": None,
         }
         if not args.retrieval_only:
-            response = answer_research_question(
+            answer_function = (
+                answer_research_question_legacy
+                if args.answer_mode == "legacy"
+                else answer_research_question
+            )
+            response = answer_function(
                 label["ticker"], label["question"], supabase,
                 args.ollama_url, args.model,
             )
             answer = response["answer"]
-            cited = sorted({int(number) for number in CITATION.findall(answer)})
+            cited = cited_labels(answer)
             row["answer"] = answer
             row["cited_labels"] = cited
             row["citation_excerpts"] = response["citations"]
+            row["cited_source_chunks"] = [
+                {
+                    "label": index,
+                    "id": match["id"],
+                    "content": match["content"],
+                    "source_url": match["source_url"],
+                }
+                for index, match in enumerate(matches, 1)
+                if index in cited
+            ]
             row["exact_answer_included"] = (
                 contains_expected(answer, label["expected_answer"])
                 if label["answerable"] else None
@@ -174,6 +204,7 @@ def main() -> None:
         "unsupported": len(unsupported),
         "corpus_chunks": sum(len(rows) for rows in corpus.values()),
         "retriever_name": args.retriever,
+        "answer_mode": args.answer_mode,
         "retriever_gold_chunk_recall_at_5": sum(row["retriever_gold_hit"] for row in supported) / max(1, len(supported)),
         "keyword_gold_chunk_recall_at_5": sum(row["keyword_gold_hit"] for row in supported) / max(1, len(supported)),
         "exact_answer_inclusion_rate": (

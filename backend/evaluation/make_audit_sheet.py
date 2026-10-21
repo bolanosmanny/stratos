@@ -1,78 +1,82 @@
-"""Create a human-review sheet for saved answer predictions and cited chunks."""
+"""Render the saved citation review without a live database connection."""
 
 import argparse
 import json
-import os
 from pathlib import Path
-
-from dotenv import load_dotenv
-from supabase import create_client
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--verdicts",
+        type=Path,
+        default=Path(__file__).resolve().parent / "audit_verdicts.json",
+    )
     args = parser.parse_args()
 
-    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
-    supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SECRET_KEY"])
-    predictions = json.loads(args.results.read_text())["results"]
-    cited_ids = {
-        row.get("retrieved_top_five", row.get("vector_top_five"))[label - 1]
-        for row in predictions
-        for label in row["cited_labels"]
-        if label <= len(row.get("retrieved_top_five", row.get("vector_top_five")))
-    }
-    chunks = {}
-    ids = sorted(cited_ids)
-    for start in range(0, len(ids), 100):
-        page = (
-            supabase.table("document_chunks")
-            .select("id,content,source_url,filing_type,section")
-            .in_("id", ids[start : start + 100])
-            .execute()
-            .data
-        )
-        chunks.update({item["id"]: item for item in page})
+    results = json.loads(args.results.read_text())
+    predictions = results["results"]
+    run = "before" if results["summary"]["answer_mode"] == "legacy" else "after"
+    verdicts = json.loads(args.verdicts.read_text())[run]
+    refusals = set(verdicts["answerable_abstentions"])
+    factual_errors = set(verdicts["factual_errors"])
+    unsupported_false = set(verdicts["unsupported_false_answers"])
+    chunk_failures = verdicts["chunk_citation_failures"]
+    quote_failures = verdicts.get("displayed_quote_failures", {})
 
     lines = [
-        "# Manual answer and citation audit",
+        f"# SEC answer and citation audit — {run}",
         "",
-        "For each supported answer, mark factual correctness and whether each",
-        "cited excerpt directly supports the whole claim. The automatic source",
-        "quote and numeric checks are not semantic entailment.",
+        "Verdicts are recorded in audit_verdicts.json. They were reviewed by",
+        "the same evaluator, not an independent blinded reviewer. Citation",
+        "support requires the requested period and scope, not merely a matching",
+        "number elsewhere in the filing.",
         "",
     ]
     for row in predictions:
+        case_id = row["id"]
+        if not row["answerable"]:
+            answer_verdict = "False answer" if case_id in unsupported_false else "Correct refusal"
+        elif case_id in refusals:
+            answer_verdict = "Incorrect refusal"
+        elif case_id in factual_errors:
+            answer_verdict = "Incorrect answer"
+        else:
+            answer_verdict = "Correct answer"
         lines.extend([
-            f"## {row['id']} — {row['ticker']}",
+            f"## {case_id} — {row['ticker']}",
             "",
             f"Question: {row['question']}",
             f"Expected short answer: {row['expected_answer'] or 'unsupported'}",
             f"Gold SEC source: {row['source_url'] or 'none'}",
             f"Gold evidence: {row['evidence_quote'] or 'none'}",
             f"Model answer: {row['answer'] or 'not run'}",
-            "Factual answer correct? [ ] Yes [ ] No [ ] Abstained",
-            "Cited claims fully supported? [ ] Yes [ ] No [ ] No citation",
+            f"Adjudication: **{answer_verdict}**",
             "",
         ])
-        ranking = row.get("retrieved_top_five", row.get("vector_top_five"))
-        for label in row["cited_labels"]:
-            if label > len(ranking):
-                continue
-            chunk = chunks.get(ranking[label - 1])
-            if chunk is None:
-                continue
+        model_excerpts = {
+            item["label"]: item["excerpt"]
+            for item in row.get("citation_excerpts", [])
+        }
+        for chunk in row["cited_source_chunks"]:
+            label = chunk["label"]
+            full_verdict = "unsupported" if label in chunk_failures.get(case_id, []) else "supported"
+            quote_verdict = (
+                "unsupported" if label in quote_failures.get(case_id, []) else "supported"
+            )
             lines.extend([
-                f"Citation [{label}] — chunk {chunk['id']} · {chunk['filing_type']} · {chunk['section']}",
+                f"Citation [{label}] — chunk {chunk['id']} · full chunk **{full_verdict}**"
+                + (f" · displayed quote **{quote_verdict}**" if run == "after" else ""),
                 f"Source: {chunk['source_url']}",
-                f"Excerpt: {chunk['content'][:1400].replace(chr(10), ' ')}",
+                f"Model-selected quote: {model_excerpts.get(label, 'none')}",
+                f"Full indexed chunk: {chunk['content'].replace(chr(10), ' ').strip()}",
                 "",
             ])
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text("\n".join(lines) + "\n")
+    args.output.write_text("\n".join(lines).rstrip() + "\n")
     print(f"Wrote review sheet for {len(predictions)} questions to {args.output}")
 
 
