@@ -1,0 +1,2251 @@
+{
+  "summary": {
+    "questions": 50,
+    "supported": 40,
+    "unsupported": 10,
+    "corpus_chunks": 4224,
+    "retriever_name": "hybrid",
+    "retriever_gold_chunk_recall_at_5": 0.975,
+    "keyword_gold_chunk_recall_at_5": 0.925,
+    "exact_answer_inclusion_rate": 0.65,
+    "gold_chunk_citation_hit_rate": 0.6,
+    "unsupported_abstention_rate": 1.0,
+    "label_note": "Source-span-verified labels need independent semantic review; exact answer and gold-chunk citation checks are conservative proxies, not audited factual/citation accuracy."
+  },
+  "results": [
+    {
+      "id": "S01",
+      "ticker": "INTC",
+      "question": "What was the total amount of charges related to the 2024 Restructuring Plan and other actions in 2025?",
+      "answerable": true,
+      "expected_answer": "281 million",
+      "gold_chunk_id": 21320,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000011/intc-20251227.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-01-23",
+      "evidence_quote": "2025 vs. 2024 Employee severance and benefit arrangements includes net charges relating to the 2025 Restructuring Plan of $1.5 billion, and 2024 Restructuring Plan and other actions of $281 million in 2025.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21319,
+        21320,
+        21368,
+        21367,
+        21293
+      ],
+      "keyword_top_five": [
+        21319,
+        21320,
+        21368,
+        21367,
+        21321
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.833421727011004,
+      "answer": "The total amount of charges related to the 2024 Restructuring Plan and other actions in 2025 was $281 million. [2]",
+      "cited_labels": [
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-01-23",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000011/intc-20251227.htm",
+          "excerpt": "Employee severance and benefit arrangements includes net charges relating to the 2025 Restructuring Plan of $1.5 billion, and 2024 Restructuring Plan and other actions of $281 million in 2025."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S02",
+      "ticker": "NFLX",
+      "question": "What was the interest expense for the three months ended June 30, 2026?",
+      "answerable": true,
+      "expected_answer": "175,685",
+      "gold_chunk_id": 21190,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000212/nflx-20260630.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-07-17",
+      "evidence_quote": "Interest expense $ 175,685 $ 182,649 $ (6,964) (4) %",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21190,
+        21191,
+        21189,
+        21192,
+        21193
+      ],
+      "keyword_top_five": [
+        21190,
+        21191,
+        21193,
+        21192,
+        21189
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.826944828033447,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S03",
+      "ticker": "AMZN",
+      "question": "What is the primary reason for the net loss of $(2.3) billion in 2024 mentioned in the filing?",
+      "answerable": true,
+      "expected_answer": "marketable securities loss from our equity investment in Rivian Automotive, Inc. (“Rivian”)",
+      "gold_chunk_id": 19387,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-02-06",
+      "evidence_quote": "The net loss of $(2.3) billion in 2024 is primarily from the marketable securities loss from our equity investment in Rivian Automotive, Inc. (“Rivian”).",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        19386,
+        19388,
+        19387,
+        19407,
+        19368
+      ],
+      "keyword_top_five": [
+        19386,
+        19388,
+        19368,
+        19387,
+        19424
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.72567095535013,
+      "answer": "The net loss of $(2.3) billion in 2024 is primarily from the marketable securities loss from our equity investment in Rivian Automotive, Inc. (\"Rivian\"). [3]",
+      "cited_labels": [
+        3
+      ],
+      "citation_excerpts": [
+        {
+          "label": 3,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-02-06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+          "excerpt": "The net loss of $(2.3) billion in 2024 is primarily from the marketable securities loss from our equity investment in Rivian Automotive, Inc. (“Rivian”)."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S04",
+      "ticker": "COST",
+      "question": "What was the effective tax rate for the 36 weeks ended May 10, 2026?",
+      "answerable": true,
+      "expected_answer": "25.4%",
+      "gold_chunk_id": 22061,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/909832/000090983226000051/cost-20260510.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-06-03",
+      "evidence_quote": "The effective tax rate was 25.4%, compared to 26.2%;",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        22071,
+        22060,
+        22072,
+        22031,
+        22061
+      ],
+      "keyword_top_five": [
+        22071,
+        22072,
+        22061,
+        22060,
+        22064
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.716529607772827,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S05",
+      "ticker": "GOOGL",
+      "question": "In Alphabet's filing, what year are the listed 5.875% senior notes due?",
+      "answerable": true,
+      "expected_answer": "2058",
+      "gold_chunk_id": 19291,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/goog-20260722.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-22",
+      "evidence_quote": "5.875% Senior Notes due 2058 — Nasdaq Stock Market LLC",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        19292,
+        19032,
+        19291,
+        19187,
+        19293
+      ],
+      "keyword_top_five": [
+        19291,
+        19292,
+        19293,
+        19290,
+        19007
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.726440695099919,
+      "answer": "2058 [3]",
+      "cited_labels": [
+        3
+      ],
+      "citation_excerpts": [
+        {
+          "label": 3,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-07-22",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/goog-20260722.htm",
+          "excerpt": "5.875% Senior Notes due 2058 — Nasdaq Stock Market LLC"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S06",
+      "ticker": "DIS",
+      "question": "What was the non-cash tax benefit in the current year due to Hulu’s U.S. income tax classification change?",
+      "answerable": true,
+      "expected_answer": "26 percentage points",
+      "gold_chunk_id": 20882,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448925000155/dis-20250927.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2025-11-13",
+      "evidence_quote": "The current year included a non-cash tax benefit of approximately 26 percentage points due to a change in Hulu’s U.S. income tax classification",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20882,
+        20883,
+        20881,
+        20877,
+        20884
+      ],
+      "keyword_top_five": [
+        20882,
+        20877,
+        20881,
+        20960,
+        20883
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.843501875191817,
+      "answer": "The non-cash tax benefit in the current year due to Hulu’s U.S. income tax classification change was approximately 26 percentage points. [1] [4]",
+      "cited_labels": [
+        1,
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2025-11-13",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448925000155/dis-20250927.htm",
+          "excerpt": "• The current year included a non-cash tax benefit of approximately 26 percentage points due to a change in Hulu’s U.S. income tax classification"
+        },
+        {
+          "label": 4,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2025-11-13",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448925000155/dis-20250927.htm",
+          "excerpt": "The lower effective tax rate was due to a non-cash tax benefit recognized in the current year upon a change in Hulu’s U.S. income tax classification (see Note 9 to the Consolidated Financial Statements)."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S07",
+      "ticker": "NFLX",
+      "question": "What is the total amount of streaming content obligations as of the latest reporting period?",
+      "answerable": true,
+      "expected_answer": "25,106,705",
+      "gold_chunk_id": 21233,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000211/ex991_q226.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-16",
+      "evidence_quote": "Total streaming content obligations* $ 25,106,705 $ 24,039,228",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21233,
+        21125,
+        21146,
+        21164,
+        21165
+      ],
+      "keyword_top_five": [
+        21233,
+        21125,
+        21165,
+        21200,
+        21123
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.747669011632327,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S08",
+      "ticker": "TSLA",
+      "question": "Which stock exchange is the common stock of Tesla, Inc. listed on according to this filing?",
+      "answerable": true,
+      "expected_answer": "The Nasdaq Global Select Market",
+      "gold_chunk_id": 18793,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026049213/tsla-20260722.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-22",
+      "evidence_quote": "The Nasdaq Global Select Market",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18792,
+        18794,
+        18725,
+        18793,
+        18795
+      ],
+      "keyword_top_five": [
+        18793,
+        18794,
+        18792,
+        18725,
+        18726
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.816534578800201,
+      "answer": "The common stock of Tesla, Inc. is listed on The Nasdaq Global Select Market. [4]",
+      "cited_labels": [
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 4,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-07-22",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026049213/tsla-20260722.htm",
+          "excerpt": "Securities registered pursuant to Section 12(b) of the Act: Title of each class Trading Symbol(s) Name of each exchange on which registered Common stock TSLA The Nasdaq Global Select Market"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S09",
+      "ticker": "TSLA",
+      "question": "What is Samsung planning to manufacture in the U.S. for AI applications?",
+      "answerable": true,
+      "expected_answer": "advanced semiconductors",
+      "gold_chunk_id": 18655,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Risk Factors",
+      "filing_date": "2026-01-29",
+      "evidence_quote": "Samsung to manufacture advanced semiconductors for AI inference and training in the U.S.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18654,
+        18655,
+        18650,
+        18690,
+        18674
+      ],
+      "keyword_top_five": [
+        18654,
+        18655,
+        18650,
+        18674,
+        18685
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.72608253644913,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S10",
+      "ticker": "GOOGL",
+      "question": "What court issued a mixed decision in the DOJ case against Google in April 2025?",
+      "answerable": true,
+      "expected_answer": "US District Court for the Eastern District of Virginia",
+      "gold_chunk_id": 19103,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-07-23",
+      "evidence_quote": "In April 2025, the US District Court for the Eastern District of Virginia issued a mixed decision in the DOJ case against Google, ruling that neither Google's advertiser tools nor the DoubleClick and AdMeld acquisitions were anticompetitive, but that Google's publisher tools unfairly excluded rivals.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        19103,
+        19258,
+        19104,
+        18874,
+        19102
+      ],
+      "keyword_top_five": [
+        19103,
+        19258,
+        18874,
+        18978,
+        19104
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.796756672665876,
+      "answer": "US District Court for the Eastern District of Virginia [1] [4]",
+      "cited_labels": [
+        1,
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-07-23",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm",
+          "excerpt": "In April 2025, the US District Court for the Eastern District of Virginia issued a mixed decision in the DOJ case against Google, ruling that neither Google's advertiser tools nor the DoubleClick and AdMeld acquisitions were anticompetitive, but that Google's publisher tools unfairly excluded rivals."
+        },
+        {
+          "label": 4,
+          "filing_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date": "2026-02-05",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+          "excerpt": "In April 2025, the presiding judge issued a mixed decision in the DOJ case against us, ruling that neither our advertiser tools nor the DoubleClick and AdMeld acquisitions were anticompetitive, but that our publisher tools unfairly excluded rivals."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S11",
+      "ticker": "MSFT",
+      "question": "What is the relationship between OpenAI's API and Azure according to the filing?",
+      "answerable": true,
+      "expected_answer": "exclusive to Azure",
+      "gold_chunk_id": 14098,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2025-07-30",
+      "evidence_quote": "The OpenAI API is exclusive to Azure, runs on Azure, and is available through the Azure OpenAI Service.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        14097,
+        14098,
+        14114,
+        18501,
+        18411
+      ],
+      "keyword_top_five": [
+        14097,
+        14098,
+        14114,
+        18431,
+        18432
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.799149632453918,
+      "answer": "The OpenAI API is exclusive to Azure, runs on Azure, and is available through the Azure OpenAI Service. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2025-07-30",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+          "excerpt": "The OpenAI API is exclusive to Azure, runs on Azure, and is available through the Azure OpenAI Service."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S12",
+      "ticker": "XOM",
+      "question": "What does the company's net-zero ambition depend on according to the filing?",
+      "answerable": true,
+      "expected_answer": "supportive policy and technology advancements",
+      "gold_chunk_id": 20744,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/xom-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Risk Factors",
+      "filing_date": "2026-02-18",
+      "evidence_quote": "ultimately net-zero, derive from hypothetical scenarios that reflect many assumptions about the future, including supportive policy and technology advancements, and reflect substantial uncertainties.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20744,
+        20754,
+        20799,
+        20743,
+        20775
+      ],
+      "keyword_top_five": [
+        20744,
+        20754,
+        20743,
+        20755,
+        20779
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.721925838108411,
+      "answer": "The company's net-zero ambition depends on supportive policy and technology advancements, as well as the ability to recognize key signposts of changes in the global energy system and direct investment accordingly. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date": "2026-02-18",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000045/xom-20251231.htm",
+          "excerpt": "The success of our strategy in a lower-emissions future will also depend on our ability to recognize key signposts of changes in the global energy system on a timely basis, and our corresponding ability to direct investment to the technologies and businesses, at the appropriate stage of development, to best capitalize on our competitive strengths."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S13",
+      "ticker": "V",
+      "question": "How much did the company spend on common stock repurchases during the nine months ended June 30, 2026?",
+      "answerable": true,
+      "expected_answer": "16.5 billion",
+      "gold_chunk_id": 20325,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316126000104/v-20260630.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-07-29",
+      "evidence_quote": "For the nine months ended June 30, 2026, we repurchased 50 million shares of our class A common stock in the open market for $16.5 billion.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20325,
+        20283,
+        20318,
+        20256,
+        20301
+      ],
+      "keyword_top_five": [
+        20325,
+        20318,
+        20301,
+        20300,
+        20314
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.774861977986217,
+      "answer": "The company spent $16.5 billion on common stock repurchases during the nine months ended June 30, 2026. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-07-29",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316126000104/v-20260630.htm",
+          "excerpt": "For the nine months ended June 30, 2026, we repurchased 50 million shares of our class A common stock in the open market for $16.5 billion."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S14",
+      "ticker": "COST",
+      "question": "What was the net cash provided by operating activities in the most recent year reported in the excerpt?",
+      "answerable": true,
+      "expected_answer": "11,133",
+      "gold_chunk_id": 22087,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/909832/000090983226000046/costex9918-k52826.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-28",
+      "evidence_quote": "Net cash provided by operating activities 11,133 9,468",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        22087,
+        22074,
+        22038,
+        22086,
+        22039
+      ],
+      "keyword_top_five": [
+        22087,
+        22074,
+        22086,
+        22039,
+        22038
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.763837979068637,
+      "answer": "The net cash provided by operating activities in the most recent year reported in the excerpt was $11,133 million. [4]",
+      "cited_labels": [
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 4,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-28",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/909832/000090983226000046/costex9918-k52826.htm",
+          "excerpt": "Net cash provided by operating activities 11,133 9,468"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S15",
+      "ticker": "GOOGL",
+      "question": "What indices are used for comparison in the graph for Alphabet Inc. Class A common stock?",
+      "answerable": true,
+      "expected_answer": "S&P 500 index, the NASDAQ Composite index, and the RDG Internet Composite index",
+      "gold_chunk_id": 19010,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-02-05",
+      "evidence_quote": "the S&P 500 index, the NASDAQ Composite index, and the RDG Internet Composite index",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        19010,
+        19011,
+        19007,
+        19009,
+        19036
+      ],
+      "keyword_top_five": [
+        19010,
+        19011,
+        19009,
+        19171,
+        19007
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.777330305894582,
+      "answer": "The indices used for comparison in the graph for Alphabet Inc. Class A common stock are the S&P 500 index, the NASDAQ Composite index, and the RDG Internet Composite index. [1] [4]",
+      "cited_labels": [
+        1,
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-02-05",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+          "excerpt": "Inc. Class A's cumulative five-year total stockholder return on common stock with the cumulative total returns of the S&P 500 index, the NASDAQ Composite index, and the RDG Internet Composite index."
+        },
+        {
+          "label": 4,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-02-05",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+          "excerpt": "The graph below matches Alphabet Inc. Class A's cumulative five-year total stockholder return on common stock with the cumulative total returns of the S&P 500 index, the NASDAQ Composite index, and the RDG Internet Composite index."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S17",
+      "ticker": "META",
+      "question": "What is the address of Meta Platforms, Inc.'s principal executive offices?",
+      "answerable": true,
+      "expected_answer": "1 Meta Way , Menlo Park , California 94025",
+      "gold_chunk_id": 19969,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050596/meta-20260729.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-29",
+      "evidence_quote": "1 Meta Way , Menlo Park , California 94025 (Address of principal executive offices and Zip Code)",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        15817,
+        19969,
+        19553,
+        15820,
+        19881
+      ],
+      "keyword_top_five": [
+        19969,
+        15817,
+        19553,
+        19881,
+        19882
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.781149734751913,
+      "answer": "The address of Meta Platforms, Inc.'s principal executive offices is 1 Meta Way, Menlo Park, California 94025. [1] [3]",
+      "cited_labels": [
+        1,
+        3
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-04-29",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028364/meta-20260429.htm",
+          "excerpt": "1 Meta Way , Menlo Park , California 94025 (Address of principal executive offices and Zip Code)"
+        },
+        {
+          "label": 3,
+          "filing_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date": "2026-01-29",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm",
+          "excerpt": "Our principal executive offices are located at 1 Meta Way, Menlo Park, California 94025, and our telephone number is (650) 543-4800."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S18",
+      "ticker": "INTC",
+      "question": "What was the total amount of non-cash asset impairment and accelerated depreciation charges recognized in Q2 2025 related to certain manufacturing assets?",
+      "answerable": true,
+      "expected_answer": "797 million",
+      "gold_chunk_id": 21356,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000157/intc-20260627.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-07-24",
+      "evidence_quote": "$797 million of non-cash asset impairment and accelerated depreciation charges recognized in Q2 2025 related to certain manufacturing assets that were determined to have no remaining operational use.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21356,
+        21364,
+        21292,
+        21316,
+        21321
+      ],
+      "keyword_top_five": [
+        21356,
+        21364,
+        21316,
+        21292,
+        21363
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.817817855943315,
+      "answer": "$797 million [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-07-24",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000157/intc-20260627.htm",
+          "excerpt": "$797 million of non-cash asset impairment and accelerated depreciation charges recognized in Q2 2025 related to certain manufacturing assets that were determined to have no remaining operational use."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S19",
+      "ticker": "V",
+      "question": "What is the due date of the 2.375% Senior Notes issued by Visa Inc.?",
+      "answerable": true,
+      "expected_answer": "2034",
+      "gold_chunk_id": 20331,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316126000103/v-20260728.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-28",
+      "evidence_quote": "2.375% Senior Notes due 2034 V34",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20331,
+        20329,
+        20330,
+        20254,
+        20332
+      ],
+      "keyword_top_five": [
+        20331,
+        20330,
+        20254,
+        20278,
+        20284
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.797204732894897,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S20",
+      "ticker": "NVDA",
+      "question": "What is the name of the CFO who provided the commentary on the company's financial results for the quarter ended April 26, 2026?",
+      "answerable": true,
+      "expected_answer": "Colette M. Kress",
+      "gold_chunk_id": 18643,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000051/nvda-20260520.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-20",
+      "evidence_quote": "Colette M. Kress, Executive Vice President and Chief Financial Officer of the Company, regarding results for the quarter ended April 26, 2026",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18643,
+        18633,
+        18641,
+        18642,
+        18632
+      ],
+      "keyword_top_five": [
+        18643,
+        18642,
+        18644,
+        18640,
+        18633
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.676376700401306,
+      "answer": "Colette M. Kress [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-20",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000051/nvda-20260520.htm",
+          "excerpt": "Attached hereto as Exhibit 99.2 and incorporated by reference herein is financial information and commentary by Colette M. Kress, Executive Vice President and Chief Financial Officer of the Company, regarding results for the quarter ended April 26, 2026, or the CFO Commentary."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S21",
+      "ticker": "MSFT",
+      "question": "In which two months did Microsoft extend its partnership with OpenAI?",
+      "answerable": true,
+      "expected_answer": "October 2025 and April 2026",
+      "gold_chunk_id": 18484,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-04-29",
+      "evidence_quote": "In October 2025 and April 2026, we extended this partnership and continue to build on our shared vision to advance artificial intelligence responsibly and make its benefits broadly accessible.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18411,
+        18484,
+        14097,
+        14115,
+        18483
+      ],
+      "keyword_top_five": [
+        18411,
+        18484,
+        14115,
+        18505,
+        14097
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.771695389050521,
+      "answer": "Microsoft extended its partnership with OpenAI in October 2025 and April 2026. [2]",
+      "cited_labels": [
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-04-29",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+          "excerpt": "In October 2025 and April 2026, we extended this partnership and continue to build on our shared vision to advance artificial intelligence responsibly and make its benefits broadly accessible."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S22",
+      "ticker": "JPM",
+      "question": "What is the primary type of loans included in the loans held-for-sale according to the SEC filing excerpt?",
+      "answerable": true,
+      "expected_answer": "syndicated loans",
+      "gold_chunk_id": 20058,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026029344/jpm-20260331.htm",
+      "filing_type": "10-Q",
+      "section": "Risk Factors",
+      "filing_date": "2026-05-01",
+      "evidence_quote": "$ (5,356) $ (17,424) $ (1,118) $ (23,898) $ (17,831) $ (6,067) $ (23,898) 75 % (a) Loans held-for-sale are primarily related to syndicated loans and loans transferred from the retained portfolio.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20058,
+        20059,
+        20046,
+        20071,
+        20049
+      ],
+      "keyword_top_five": [
+        20059,
+        20071,
+        20098,
+        20057,
+        20053
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": false,
+      "max_similarity": 0.766581416130066,
+      "answer": "The primary type of loans included in the loans held-for-sale are syndicated loans and loans transferred from the retained portfolio. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Risk Factors",
+          "filing_date": "2026-05-01",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/19617/000162828026029344/jpm-20260331.htm",
+          "excerpt": "$ (5,356) $ (17,424) $ (1,118) $ (23,898) $ (17,831) $ (6,067) $ (23,898) 75 % (a) Loans held-for-sale are primarily related to syndicated loans and loans transferred from the retained portfolio."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S23",
+      "ticker": "AMD",
+      "question": "How much did the company spend on property and equipment in the three months ended March 28, 2026?",
+      "answerable": true,
+      "expected_answer": "389 million",
+      "gold_chunk_id": 21762,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000076/amd-20260328.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-05-06",
+      "evidence_quote": "purchases of property and equipment of $389 million",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21758,
+        21763,
+        21746,
+        21755,
+        21753
+      ],
+      "keyword_top_five": [
+        21746,
+        21753,
+        21752,
+        21763,
+        21758
+      ],
+      "retriever_gold_hit": false,
+      "keyword_gold_hit": false,
+      "max_similarity": 0.729995787143707,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S24",
+      "ticker": "AMD",
+      "question": "What is the title of the executive who signed the report on behalf of Advanced Micro Devices, Inc.?",
+      "answerable": true,
+      "expected_answer": "Executive Vice President, Chief Financial Officer & Treasurer",
+      "gold_chunk_id": 21894,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000072/amd-20260505.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-05",
+      "evidence_quote": "By: /s/ Jean Hu Name: Jean Hu Title: Executive Vice President, Chief Financial Officer & Treasurer",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21891,
+        21894,
+        21740,
+        21744,
+        21746
+      ],
+      "keyword_top_five": [
+        21894,
+        21891,
+        21744,
+        21740,
+        21436
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.789674878120422,
+      "answer": "The title of the executive who signed the report on behalf of Advanced Micro Devices, Inc. is Executive Vice President, Chief Financial Officer & Treasurer. [2]",
+      "cited_labels": [
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-05",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000072/amd-20260505.htm",
+          "excerpt": "By: /s/ Jean Hu Name: Jean Hu Title: Executive Vice President, Chief Financial Officer & Treasurer"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S26",
+      "ticker": "WMT",
+      "question": "What was the percentage change in net sales from 2025 to 2026?",
+      "answerable": true,
+      "expected_answer": "7.1 %",
+      "gold_chunk_id": 20489,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000102/wmt-20260430.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-05-29",
+      "evidence_quote": "Three Months Ended April 30, (Amounts in millions) 2026 2025 Net sales $ 175,684 $ 163,981 Percentage change from comparable period 7.1 % 2.5 %",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20443,
+        20458,
+        20462,
+        20455,
+        20489
+      ],
+      "keyword_top_five": [
+        20443,
+        20489,
+        20464,
+        20458,
+        20461
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.748281002044678,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S27",
+      "ticker": "COST",
+      "question": "What is the primary source of the company's cash flow from operating activities?",
+      "answerable": true,
+      "expected_answer": "net sales and membership fees",
+      "gold_chunk_id": 22039,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/909832/000090983225000101/cost-20250831.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2025-10-08",
+      "evidence_quote": "Our cash flow provided by operations is primarily from net sales and membership fees.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        22073,
+        22039,
+        22074,
+        22040,
+        22038
+      ],
+      "keyword_top_five": [
+        22039,
+        22073,
+        22074,
+        22040,
+        22041
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.743299678367397,
+      "answer": "The primary source of the company's cash flow from operating activities is net sales and membership fees. [2]",
+      "cited_labels": [
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2025-10-08",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/909832/000090983225000101/cost-20250831.htm",
+          "excerpt": "Cash Flows from Operating Activities Net cash provided by operating activities totaled $13,335 in 2025, compared to $11,339 in 2024. Our cash flow provided by operations is primarily from net sales and membership fees."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S28",
+      "ticker": "NVDA",
+      "question": "What is Colette M. Kress's position at NVIDIA as of February 20, 2026?",
+      "answerable": true,
+      "expected_answer": "Executive Vice President and Chief Financial Officer",
+      "gold_chunk_id": 18523,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "filing_type": "10-K",
+      "section": "Risk Factors",
+      "filing_date": "2026-02-25",
+      "evidence_quote": "Colette M. Kress 58 Executive Vice President and Chief Financial Officer",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18523,
+        18524,
+        18643,
+        18644,
+        18525
+      ],
+      "keyword_top_five": [
+        18523,
+        18644,
+        18524,
+        18643,
+        18642
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.685168743133545,
+      "answer": "Colette M. Kress's position at NVIDIA as of February 20, 2026 is Executive Vice President and Chief Financial Officer. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date": "2026-02-25",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+          "excerpt": "The following sets forth certain information regarding our executive officers, their ages, and positions as of February 20, 2026: Name Age Position Jen-Hsun Huang 63 President and Chief Executive Officer Colette M. Kress 58 Executive Vice President and Chief Financial Officer"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S29",
+      "ticker": "AAPL",
+      "question": "How much cash was generated by operating activities in the most recent period reported?",
+      "answerable": true,
+      "expected_answer": "82,627",
+      "gold_chunk_id": 14094,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000011/a8-kex991q2202603282026.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-04-30",
+      "evidence_quote": "Cash generated by operating activities 82,627 53,887",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        14094,
+        18408,
+        14093,
+        22398,
+        18405
+      ],
+      "keyword_top_five": [
+        14094,
+        18408,
+        14093,
+        18407,
+        18373
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.758258371560773,
+      "answer": "116,996 [2]",
+      "cited_labels": [
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-07-30",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000018/a8-kex991q3202606272026.htm",
+          "excerpt": "Cash generated by operating activities 116,996"
+        }
+      ],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S30",
+      "ticker": "DIS",
+      "question": "How much did depreciation and amortization increase from the prior-year period to the current period?",
+      "answerable": true,
+      "expected_answer": "31 million",
+      "gold_chunk_id": 20987,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000037/dis-20260328.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-05-06",
+      "evidence_quote": "Depreciation and amortization increased $31 million, to $52 million from $21 million, due to investments in technology assets.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20959,
+        20987,
+        20957,
+        20970,
+        20953
+      ],
+      "keyword_top_five": [
+        20987,
+        20959,
+        20984,
+        20986,
+        20957
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.770321336946334,
+      "answer": "Depreciation and amortization increased by $0.1 billion from the prior-year period to the current period. [2] [5]",
+      "cited_labels": [
+        2,
+        5
+      ],
+      "citation_excerpts": [
+        {
+          "label": 2,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-05-06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000037/dis-20260328.htm",
+          "excerpt": "Depreciation and amortization increased $31 million, to $52 million from $21 million, due to investments in technology assets."
+        },
+        {
+          "label": 5,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-05-06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000037/dis-20260328.htm",
+          "excerpt": "Depreciation and amortization increased 6%, or $0.1 billion, to $1.4 billion driven by higher depreciation at Experiences and Entertainment, partially offset by lower amortization of intangible assets."
+        }
+      ],
+      "exact_answer_included": false,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S31",
+      "ticker": "MSFT",
+      "question": "Which customer segment does Microsoft identify as a source of business uncertainty?",
+      "answerable": true,
+      "expected_answer": "government customers",
+      "gold_chunk_id": 18513,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-ex99_1.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-29",
+      "evidence_quote": "uncertainties relating to our business with government customers",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        14210,
+        18487,
+        14101,
+        18513,
+        18469
+      ],
+      "keyword_top_five": [
+        18487,
+        14101,
+        18469,
+        18483,
+        14100
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": false,
+      "max_similarity": 0.749260604557847,
+      "answer": "Adverse economic or market conditions [4]",
+      "cited_labels": [
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 4,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-07-29",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-ex99_1.htm",
+          "excerpt": "• uncertainties relating to our business with government customers; • additional tax liabilities; • an inability to protect and utilize our intellectual property may harm our business and operating results; • claims that Microsoft has infringed the intellectual property rights of others; • damage to our reputation or our brands that may harm our business and results of operations; • adverse economic or market conditi..."
+        }
+      ],
+      "exact_answer_included": false,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S32",
+      "ticker": "AMZN",
+      "question": "What was the income tax provision for the three months ended March 31, 2025, and what was the net discrete tax expense included in it?",
+      "answerable": true,
+      "expected_answer": "$4.6 billion, which included $559 million of net discrete tax expense",
+      "gold_chunk_id": 19425,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-04-30",
+      "evidence_quote": "Our income tax provision for the three months ended March 31, 2025 was $4.6 billion, which included $559 million of net discrete tax expense.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        19425,
+        15327,
+        19370,
+        19424,
+        19408
+      ],
+      "keyword_top_five": [
+        19425,
+        19424,
+        15327,
+        15326,
+        19511
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.726732134819031,
+      "answer": "The income tax provision for the three months ended March 31, 2025 was $4.6 billion, which included $559 million of net discrete tax expense. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-04-30",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm",
+          "excerpt": "Our income tax provision for the three months ended March 31, 2025 was $4.6 billion, which included $559 million of net discrete tax expense."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S33",
+      "ticker": "XOM",
+      "question": "What is the trading symbol for the company's common stock?",
+      "answerable": true,
+      "expected_answer": "XOM",
+      "gold_chunk_id": 20804,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000065/xom-20260501.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-01",
+      "evidence_quote": "Common Stock, without par value XOM New York Stock Exchange",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20804,
+        20776,
+        20805,
+        20799,
+        20800
+      ],
+      "keyword_top_five": [
+        20804,
+        20776,
+        20800,
+        20739,
+        20728
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.655705709925464,
+      "answer": "The trading symbol for the company's common stock is XOM. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-01",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/34088/000003408826000065/xom-20260501.htm",
+          "excerpt": "Common Stock, without par value XOM New York Stock Exchange"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S34",
+      "ticker": "AMD",
+      "question": "What environmental laws could impose strict and joint liability on the company for the cost of removing or remedying hazardous substances at a site where they were not the current or previous owner or operator?",
+      "answerable": true,
+      "expected_answer": "the Superfund Act",
+      "gold_chunk_id": 21604,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000018/amd-20251227.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-02-04",
+      "evidence_quote": "Certain environmental laws, including the United States Comprehensive, Environmental Response, Compensation and Liability Act of 1980, or the Superfund Act, impose strict and, under certain circumstances, joint and several liability on current and previous owners or operators of real property for the cost of removal or remediation of hazardous substances and impose liability for damages to natural resources.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21432,
+        21604,
+        21605,
+        21857,
+        21433
+      ],
+      "keyword_top_five": [
+        21432,
+        21604,
+        21857,
+        21528,
+        21700
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.773727320841769,
+      "answer": "The United States Comprehensive, Environmental Response, Compensation and Liability Act of 1980, or the Superfund Act, imposes strict and, under certain circumstances, joint and several liability on current and previous owners or operators of real property for the cost of removal or remediation of hazardous substances and imposes liability for damages to natural resources. These laws often impose liability even if the owner or operator did not know of, or was not responsible for, the release of such hazardous substances. These environmental laws also assess liability on persons who arrange for hazardous substances to be sent to disposal or treatment facilities when such facilities are found to be contaminated. Such persons can be responsible for cleanup costs even if they never owned or operated the contaminated facility. [1] [2]",
+      "cited_labels": [
+        1,
+        2
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Risk Factors",
+          "filing_date": "2026-02-04",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000018/amd-20251227.htm",
+          "excerpt": "Certain environmental laws, including the United States Comprehensive, Environmental Response, Compensation and Liability Act of 1980, or the Superfund Act, impose strict and, under certain circumstances, joint and several liability on current and previous owners or operators of real property for the cost of removal or remediation of hazardous substances and impose liability for damages to natural resources."
+        },
+        {
+          "label": 2,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-02-04",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000018/amd-20251227.htm",
+          "excerpt": "Certain environmental laws, including the United States Comprehensive, Environmental Response, Compensation and Liability Act of 1980, or the Superfund Act, impose strict and, under certain circumstances, joint and several liability on current and previous owners or operators of real property for the cost of removal or remediation of hazardous substances and impose liability for damages to natural resources."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S35",
+      "ticker": "AAPL",
+      "question": "What factor contributed to the increase in Greater China net sales during the second quarter and first six months of 2026 compared to the same periods in 2025?",
+      "answerable": true,
+      "expected_answer": "higher net sales of iPhone",
+      "gold_chunk_id": 18366,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "filing_type": "10-Q",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-05-01",
+      "evidence_quote": "Greater China Greater China net sales increased during the second quarter and first six months of 2026 compared to the same periods in 2025 due to higher net sales of iPhone.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        18366,
+        18367,
+        18368,
+        18369,
+        18372
+      ],
+      "keyword_top_five": [
+        18366,
+        18368,
+        18367,
+        18369,
+        18370
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.779005408287048,
+      "answer": "Higher net sales of iPhone contributed to the increase in Greater China net sales during the second quarter and first six months of 2026 compared to the same periods in 2025. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-Q",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-05-01",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+          "excerpt": "Greater China net sales increased during the second quarter and first six months of 2026 compared to the same periods in 2025 due to higher net sales of iPhone."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S36",
+      "ticker": "V",
+      "question": "What was the primary reason for the increase in cash provided by operating activities in fiscal 2025 compared to the prior year?",
+      "answerable": true,
+      "expected_answer": "growth in our underlying business and the timing of payments related to income taxes",
+      "gold_chunk_id": 20278,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316125000089/v-20250930.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2025-11-06",
+      "evidence_quote": "Cash provided by operating activities increased in fiscal 2025 over the prior year primarily due to growth in our underlying business and the timing of payments related to income taxes, partially offset by higher incentive payments.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20278,
+        20277,
+        20275,
+        20274,
+        20322
+      ],
+      "keyword_top_five": [
+        20278,
+        20322,
+        20277,
+        20323,
+        20275
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.769855618476868,
+      "answer": "The primary reason for the increase in cash provided by operating activities in fiscal 2025 compared to the prior year was growth in the underlying business and the timing of payments related to income taxes, partially offset by higher incentive payments. [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2025-11-06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1403161/000140316125000089/v-20250930.htm",
+          "excerpt": "es. Cash provided by operating activities increased in fiscal 2025 over the prior year primarily due to growth in our underlying business and the timing of payments related to income taxes, partially offset by higher incentive payments."
+        }
+      ],
+      "exact_answer_included": false,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S37",
+      "ticker": "WMT",
+      "question": "In Walmart's filing, what year are the listed 1.500% notes due?",
+      "answerable": true,
+      "expected_answer": "2028",
+      "gold_chunk_id": 20505,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000095/wmt-20260521.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-21",
+      "evidence_quote": "Market LLC 1.500% Notes due 2028 WMT28C",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20483,
+        20341,
+        20504,
+        20458,
+        20505
+      ],
+      "keyword_top_five": [
+        20504,
+        20505,
+        20483,
+        20507,
+        20443
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.745000839233398,
+      "answer": "The 1.500% notes are due in 2028. [3]",
+      "cited_labels": [
+        3
+      ],
+      "citation_excerpts": [
+        {
+          "label": 3,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-21",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000095/wmt-20260521.htm",
+          "excerpt": "1.500% Notes due 2028 WMT28C The Nasdaq Stock Market LLC"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S38",
+      "ticker": "UNH",
+      "question": "How many people were enrolled in UnitedHealthcare's stand-alone Medicare Part D plans as of December 31, 2025?",
+      "answerable": true,
+      "expected_answer": "2.8 million",
+      "gold_chunk_id": 20598,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/731766/000073176626000062/unh-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-03-02",
+      "evidence_quote": "2.8 million individuals in stand-alone Medicare Part D plans",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20598,
+        20709,
+        20597,
+        20599,
+        20593
+      ],
+      "keyword_top_five": [
+        20598,
+        20597,
+        20709,
+        20599,
+        20694
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.789769793776304,
+      "answer": "2.8 million [1]",
+      "cited_labels": [
+        1
+      ],
+      "citation_excerpts": [
+        {
+          "label": 1,
+          "filing_type": "10-K",
+          "section": "Management's Discussion and Analysis",
+          "filing_date": "2026-03-02",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/731766/000073176626000062/unh-20251231.htm",
+          "excerpt": "2.8 million individuals in stand-alone Medicare Part D plans"
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": true,
+      "abstained": false
+    },
+    {
+      "id": "S39",
+      "ticker": "WMT",
+      "question": "What was the percentage change in net sales from the fiscal year 2025 to 2026?",
+      "answerable": true,
+      "expected_answer": "4.4 %",
+      "gold_chunk_id": 20458,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/104169/000010416926000055/wmt-20260131.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-03-13",
+      "evidence_quote": "Net sales $ 482,975 $ 462,415 $ 441,817 Net sales percentage change from comparable period 4.4 % 4.7 % 5.1 %",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20458,
+        20443,
+        20462,
+        20455,
+        20461
+      ],
+      "keyword_top_five": [
+        20443,
+        20461,
+        20489,
+        20458,
+        20464
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.759671523590594,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S40",
+      "ticker": "NFLX",
+      "question": "What was the percentage increase in sales and marketing expenses from 2024 to 2025?",
+      "answerable": true,
+      "expected_answer": "13 %",
+      "gold_chunk_id": 21152,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000034/nflx-20251231.htm",
+      "filing_type": "10-K",
+      "section": "Management's Discussion and Analysis",
+      "filing_date": "2026-01-23",
+      "evidence_quote": "Sales and marketing $ 3,301,306 $ 2,917,554 $ 2,657,883 $ 383,752 13 % As a percentage of revenues 7 % 7 % 8 %",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21152,
+        21187,
+        21151,
+        21186,
+        21144
+      ],
+      "keyword_top_five": [
+        21152,
+        21151,
+        21186,
+        21187,
+        21144
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.725374655403219,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "S41",
+      "ticker": "DIS",
+      "question": "What is an example of how a creative investment can generate value across distribution platforms according to the filing?",
+      "answerable": true,
+      "expected_answer": "Zootopia 2",
+      "gold_chunk_id": 21021,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000036/fy2026_q2xprxex991.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-05-06",
+      "evidence_quote": "The arrival of Zootopia 2 on Disney+ in March is a perfect example of how, when our stories resonate, they generate value across our distribution platforms.",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        21021,
+        20832,
+        20837,
+        21022,
+        21059
+      ],
+      "keyword_top_five": [
+        21021,
+        21022,
+        20832,
+        20837,
+        20836
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.755903221490886,
+      "answer": "An example of how a creative investment can generate value across distribution platforms is the Zootopia 2 film, which generated $1.9 billion in global box office and surpassed 1 billion hours streamed on Disney+. [4]",
+      "cited_labels": [
+        4
+      ],
+      "citation_excerpts": [
+        {
+          "label": 4,
+          "filing_type": "8-K · Earnings Release",
+          "section": "Earnings Release",
+          "filing_date": "2026-05-06",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1744489/000174448926000036/fy2026_q2xprxex991.htm",
+          "excerpt": "The arrival of Zootopia 2 on Disney+ in March is a perfect example of how, when our stories resonate, they generate value across our distribution platforms. Not only did Zootopia 2 generate $1.9 billion in global box office, the Zootopia franchise surpassed 1 billion hours streamed on our service."
+        }
+      ],
+      "exact_answer_included": true,
+      "cites_gold_chunk": false,
+      "abstained": false
+    },
+    {
+      "id": "S42",
+      "ticker": "UNH",
+      "question": "What is the date of the press release mentioned in the filing?",
+      "answerable": true,
+      "expected_answer": "July 16, 2026",
+      "gold_chunk_id": 20727,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/731766/000073176626000191/unh-20260716.htm",
+      "filing_type": "8-K · Earnings Release",
+      "section": "Earnings Release",
+      "filing_date": "2026-07-16",
+      "evidence_quote": "Press Release dated July 16, 2026",
+      "label_status": "source_span_verified_pending_human_review",
+      "retrieved_top_five": [
+        20727,
+        20623,
+        20530,
+        20726,
+        20725
+      ],
+      "keyword_top_five": [
+        20727,
+        20726,
+        20725,
+        20530,
+        20623
+      ],
+      "retriever_gold_hit": true,
+      "keyword_gold_hit": true,
+      "max_similarity": 0.701451382084232,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": false,
+      "cites_gold_chunk": false,
+      "abstained": true
+    },
+    {
+      "id": "U01",
+      "ticker": "AAPL",
+      "question": "What will Apple's stock price close at on December 31, 2030?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        18401,
+        14087,
+        22391,
+        18406,
+        22405
+      ],
+      "keyword_top_five": [
+        14087,
+        18401,
+        22405,
+        18373,
+        18377
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": 0.717887494815887,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U02",
+      "ticker": "MSFT",
+      "question": "What is Microsoft's unpublished internal cloud budget for 2030?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        18456,
+        18482,
+        14133,
+        18410,
+        14096
+      ],
+      "keyword_top_five": [
+        18456,
+        14133,
+        14134,
+        18457,
+        14101
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": null,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U03",
+      "ticker": "NVDA",
+      "question": "How many GPUs will NVIDIA sell in fiscal 2031?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        18610,
+        18634,
+        18621,
+        18625,
+        18592
+      ],
+      "keyword_top_five": [
+        18610,
+        18621,
+        18592,
+        18577,
+        18597
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": null,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U04",
+      "ticker": "AMZN",
+      "question": "What will Amazon's next unannounced acquisition be?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        15318,
+        19429,
+        15321,
+        19409,
+        19393
+      ],
+      "keyword_top_five": [
+        15318,
+        19409,
+        19408,
+        19371,
+        15319
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": null,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U05",
+      "ticker": "GOOGL",
+      "question": "What did Alphabet's board privately decide in its October 2030 meeting?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        19009,
+        19029,
+        18891,
+        19187,
+        18995
+      ],
+      "keyword_top_five": [
+        19009,
+        18891,
+        18995,
+        18888,
+        18992
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": null,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U06",
+      "ticker": "META",
+      "question": "What is Meta's confidential 2030 product roadmap?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        15686,
+        19881,
+        19533,
+        19880,
+        15647
+      ],
+      "keyword_top_five": [
+        19881,
+        19880,
+        15647,
+        19537,
+        19861
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": 0.72454359306525,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U07",
+      "ticker": "TSLA",
+      "question": "What will Tesla's exact 2030 net income be?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        18723,
+        18792,
+        18727,
+        18741,
+        18729
+      ],
+      "keyword_top_five": [
+        18792,
+        18741,
+        18760,
+        18742,
+        18739
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": 0.757750809192657,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U08",
+      "ticker": "JPM",
+      "question": "What is JPMorgan's private customer account password policy for 2030?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        20127,
+        20029,
+        20100,
+        19988,
+        20048
+      ],
+      "keyword_top_five": [
+        20100,
+        20048,
+        20039,
+        20151,
+        20127
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": 0.697274622564804,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U09",
+      "ticker": "AMD",
+      "question": "What will AMD's exact operating income be in fiscal 2030?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        21752,
+        21747,
+        4279,
+        21746,
+        4274
+      ],
+      "keyword_top_five": [
+        4279,
+        21747,
+        21752,
+        21751,
+        4289
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": 0.788809501791284,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    },
+    {
+      "id": "U10",
+      "ticker": "DIS",
+      "question": "What is Disney's unannounced film slate for 2032?",
+      "answerable": false,
+      "expected_answer": null,
+      "gold_chunk_id": null,
+      "source_url": null,
+      "filing_type": null,
+      "section": null,
+      "filing_date": null,
+      "evidence_quote": null,
+      "label_status": "human_authored_out_of_corpus",
+      "retrieved_top_five": [
+        21022,
+        21045,
+        20900,
+        20927,
+        21000
+      ],
+      "keyword_top_five": [
+        21022,
+        20927,
+        21000,
+        20924,
+        20995
+      ],
+      "retriever_gold_hit": null,
+      "keyword_gold_hit": null,
+      "max_similarity": null,
+      "answer": "The indexed SEC filing excerpts do not support an answer to this question.",
+      "cited_labels": [],
+      "citation_excerpts": [],
+      "exact_answer_included": null,
+      "cites_gold_chunk": null,
+      "abstained": true
+    }
+  ]
+}

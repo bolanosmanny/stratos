@@ -13,8 +13,9 @@ def chat_with_ollama(
                 "model": model,
                 "messages": messages,
                 "stream": False,
+                "format": "json",
                 "options": {
-                    "temperature": 0.2,
+                    "temperature": 0,
                 },
             },
             timeout=180,
@@ -38,4 +39,3 @@ def chat_with_ollama(
             status_code=503,
             detail=f"Ollama is unavailable: {error}",
         )
-    

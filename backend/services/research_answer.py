@@ -1,7 +1,8 @@
 from supabase import Client
 
+from .evidence import verified_answer
 from .ollama_client import chat_with_ollama
-from .retrieval import retrieve_relevant_chunks
+from .retrieval import retrieve_relevant_chunks_hybrid
 
 def answer_research_question(
         ticker: str,
@@ -10,7 +11,7 @@ def answer_research_question(
         ollama_base_url: str,
         ollama_model: str,
 ) -> dict:
-    matches = retrieve_relevant_chunks(
+    matches = retrieve_relevant_chunks_hybrid(
         ticker,
         question,
         supabase,
@@ -45,7 +46,10 @@ def answer_research_question(
                 "Do not volunteer a fiscal year-end date unless the user specifically asks for it. "
                 "If the user asks about a year, repeat only that year and do not infer its ending date. "
                 "Keep the answer concise. Every factual sentence and every bullet point must end with one or more matching source labels, such as [1] or [2]. "
-                "Never provide an uncited factual claim."
+                "Never provide an uncited factual claim. "
+                "Return ONLY JSON with keys answer and evidence. evidence is an array of objects with integer label and quote. "
+                "For every cited label, include a short quote copied exactly from that source excerpt which directly supports the answer. "
+                "If no excerpt directly answers the question, return {\"answer\":\"INSUFFICIENT_EVIDENCE\",\"evidence\":[]}."
             ),
         },
         {
@@ -58,11 +62,12 @@ def answer_research_question(
         },
     ]
 
-    answer = chat_with_ollama(
+    raw_answer = chat_with_ollama(
         messages,
         ollama_base_url,
         ollama_model,
     )
+    answer, verified_labels, verified_quotes = verified_answer(raw_answer, matches)
 
     citations = [
         {
@@ -71,12 +76,11 @@ def answer_research_question(
             "section": match["section"],
             "filing_date": match["filing_date"],
             "source_url": match["source_url"],
-            "excerpt": (
-                match["content"][:420].strip()
-                + ("..." if len(match["content"]) > 420 else "")
-            )
+            "excerpt": verified_quotes[index][:420].strip()
+            + ("..." if len(verified_quotes[index]) > 420 else "")
         }
         for index, match in enumerate(matches, start=1)
+        if index in verified_labels
     ]
 
     return { 

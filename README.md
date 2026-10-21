@@ -19,13 +19,14 @@ flowchart LR
     A[SEC filings and earnings releases] --> B[Section extraction and chunking]
     B --> C[Sentence-transformer embeddings]
     C --> D[(Supabase Postgres + pgvector)]
-    E[User research question] --> F[Vector similarity search]
+    E[User research question] --> F[Vector + keyword rank fusion]
     D --> F
     F --> G[Qwen via Ollama]
-    G --> H[Answer with SEC citations]
+    G --> V[Quote provenance and number checks]
+    V --> H[Answer with SEC citations or refusal]
 ```
 
-The indexer covers a curated research universe of large public companies. It retrieves recent 10-K, 10-Q, and earnings-release material, extracts risk factors and management discussion sections, embeds the chunks, and stores them in pgvector for retrieval.
+The indexer covers a curated research universe of large public companies. It retrieves recent 10-K, 10-Q, and earnings-release material, extracts risk factors and management discussion sections, embeds the chunks, and stores them in pgvector. Retrieval combines semantic and keyword rankings. Before returning an answer, the backend checks the cited quote against the retrieved excerpt and rejects numerical claims absent from that evidence. This does not prove full semantic entailment.
 
 ## System design
 
@@ -44,7 +45,7 @@ flowchart LR
 
 - Supabase Auth and Row Level Security isolate each user’s profiles, watchlists, portfolio holdings, and research history.
 - FastAPI handles market data, SEC ingestion, semantic retrieval, and research-answer generation while keeping provider credentials server-side.
-- pgvector stores SEC filing embeddings and retrieves the most relevant chunks before Qwen produces source-cited answers.
+- pgvector stores SEC filing embeddings; rank fusion combines vector and keyword results before Qwen drafts a source-cited answer.
 - Caddy terminates HTTPS and routes public traffic to containerized frontend and API services.
 - Docker Compose separates the frontend, API, Ollama, and reverse-proxy services while keeping internal service communication private.
 
@@ -52,6 +53,7 @@ flowchart LR
 
 - Quote/news caching and research rate limiting are in-process controls designed for a single API instance; they reset after a restart and are not shared across multiple instances.
 - The research corpus is limited to the supported SEC filing sections and the indexed company universe.
+- The quote and number checks cannot establish that every qualitative claim is entailed by its citation; unsupported answers can still require human review.
 - Local Ollama response time varies by model size, available machine resources, and whether the model is already loaded.
 - Stratos supports research and education, not investment advice, trading recommendations, or stock-price prediction.
 
@@ -138,6 +140,15 @@ cd backend
 source venv/bin/activate
 python -m pytest
 ```
+
+### SEC answer-quality evaluation
+
+The [evaluation protocol](backend/evaluation/README.md),
+[before/after report](backend/evaluation/report.md), and 50-question draft
+label set compare retrieval against a keyword baseline and record answer,
+citation, and unsupported-question behavior. Source-span and automatic scoring
+checks are not a substitute for independent review of the labels and cited
+answers; do not report the automatic proxies as audited factual accuracy.
 
 ### Frontend quality checks
 
