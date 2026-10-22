@@ -95,8 +95,17 @@ jobs:
           mkdir -p reports
           python -m pytest --junitxml=reports/junit.xml
 
+      - name: Preserve JUnit report while demo server is offline
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repropulse-junit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: backend/reports/junit.xml
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Upload JUnit report to ReproPulse
-        if: always() && vars.REPROPULSE_ENDPOINT != ''
+        if: always() && vars.REPROPULSE_LIVE == 'true' && vars.REPROPULSE_ENDPOINT != ''
         uses: ./actions/upload-junit
         with:
           endpoint: ${{ vars.REPROPULSE_ENDPOINT }}
