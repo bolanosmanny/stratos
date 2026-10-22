@@ -67,7 +67,9 @@ def answer_research_question(
         ollama_base_url,
         ollama_model,
     )
-    answer, verified_labels, verified_quotes = verified_answer(raw_answer, matches)
+    answer, verified_labels, verified_quotes = verified_answer(
+        raw_answer, matches, question
+    )
 
     citations = [
         {

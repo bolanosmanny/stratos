@@ -81,7 +81,17 @@ def main() -> None:
     parser.add_argument("--verdicts", type=Path, default=here / "audit_verdicts.json")
     parser.add_argument("--before", type=Path, default=here / "results_before.json")
     parser.add_argument("--after", type=Path, default=here / "results_final.json")
+    parser.add_argument(
+        "--single-verdicts", type=Path,
+        help="Score one saved run with an after-style verdict file instead of the original pair",
+    )
     args = parser.parse_args()
+
+    if args.single_verdicts:
+        results = json.loads(args.after.read_text())
+        verdicts = json.loads(args.single_verdicts.read_text())
+        print(json.dumps(score_run(results, verdicts), indent=2))
+        return
 
     verdicts = json.loads(args.verdicts.read_text())
     before = json.loads(args.before.read_text())

@@ -41,7 +41,9 @@ def _parse_json(raw: str) -> dict | None:
     return value if isinstance(value, dict) else None
 
 
-def verified_answer(raw: str, matches: list[dict]) -> tuple[str, list[int], dict[int, str]]:
+def verified_answer(
+    raw: str, matches: list[dict], question: str = ""
+) -> tuple[str, list[int], dict[int, str]]:
     """Return answer, cited labels, and exact source quotes, or a refusal."""
     value = _parse_json(raw)
     if value is None:
@@ -79,11 +81,13 @@ def verified_answer(raw: str, matches: list[dict]) -> tuple[str, list[int], dict
     if not set(cited).issubset(quotes):
         return REFUSAL, [], {}
 
-    # A citation for an invented amount or year must never pass validation.
+    # The answer may repeat a date or reporting period supplied by the user.
+    # Only newly introduced numbers must appear in the cited source quote.
     claim_text = SOURCE_LABEL.sub("", answer)
     claim_numbers = set(NUMBER.findall(claim_text))
+    question_numbers = set(NUMBER.findall(question))
     evidence_numbers = set(NUMBER.findall(" ".join(quotes[label] for label in set(cited))))
-    if not claim_numbers.issubset(evidence_numbers):
+    if not (claim_numbers - question_numbers).issubset(evidence_numbers):
         return REFUSAL, [], {}
 
     labels = sorted(set(cited))

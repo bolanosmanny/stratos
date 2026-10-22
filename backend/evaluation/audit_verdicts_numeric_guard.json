@@ -1,0 +1,28 @@
+{
+  "review_scope": "The same 50 frozen questions and source-anchored rubric as audit_verdicts.json. This is a non-blinded review by the benchmark author; it is not an independent accuracy claim.",
+  "answerable_abstentions": ["S04", "S09", "S14", "S19", "S22", "S40"],
+  "factual_errors": {
+    "S23": "Returned prior-year $212 million as the amount for the three months ended March 28, 2026; the correct current-period value is $389 million in an adjacent chunk.",
+    "S31": "Answered an economic/market condition, not the requested government-customer segment."
+  },
+  "chunk_citation_failures": {
+    "S07": [1],
+    "S23": [2],
+    "S31": [4]
+  },
+  "displayed_quote_failures": {
+    "S02": [3],
+    "S06": [1],
+    "S07": [1],
+    "S10": [4],
+    "S12": [1],
+    "S23": [2],
+    "S26": [3],
+    "S29": [2],
+    "S30": [1],
+    "S31": [4],
+    "S38": [1]
+  },
+  "unsupported_false_answers": {},
+  "notes": "S06/S26/S30 answers are factually correct and their full cited chunks provide period context, but their displayed short quotes omit that context. S23 demonstrates that verified quote provenance and numeric matching do not prove period alignment."
+}

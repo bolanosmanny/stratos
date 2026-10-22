@@ -141,6 +141,26 @@ def test_evidence_validator_uses_valid_quote_when_an_extra_quote_is_wrong():
     assert labels == [2]
     assert quotes == {2: "Operating cash flow came from membership fees."}
 
+
+def test_evidence_validator_allows_question_period_but_requires_new_amount():
+    source = "Interest expense was $175,685 thousand."
+    answer = '{"answer":"In 2026, interest expense was $175,685 thousand.",'
+    evidence = '"evidence":[{"label":1,"quote":"Interest expense was $175,685 thousand."}]}'
+
+    accepted, labels, _ = verified_answer(
+        answer + evidence, [{"content": source}], "What was interest expense in 2026?"
+    )
+    assert accepted.endswith("[1]")
+    assert labels == [1]
+
+    rejected, labels, _ = verified_answer(
+        answer.replace("175,685", "900,000") + evidence,
+        [{"content": source}],
+        "What was interest expense in 2026?",
+    )
+    assert "do not support" in rejected
+    assert labels == []
+
 def test_retrieval_uses_ticker_filter_and_query_embedding(monkeypatch):
     captured = {}
 
